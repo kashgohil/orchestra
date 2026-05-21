@@ -111,10 +111,10 @@ Completed:
 - Global repo index store.
 - Task artifact service for `TASK.md`, logs, events, and agent-editable files.
 - Git repo discovery, worktree creation, diff helpers, and cleanup safety.
+- Agent adapter framework, detection, launch templates, and prompt envelopes.
 
 Next:
 
-- Agent adapter system.
 - tmux runner.
 - OpenTUI command center.
 

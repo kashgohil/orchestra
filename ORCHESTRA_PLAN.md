@@ -825,3 +825,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 3 Slice 3.2 with built-in Codex, Claude, Cursor, Antigravity, Gemini, and OpenCode detection plus the `orchestra agents` command.
 - 2026-05-22: Completed Phase 3 Slice 3.3 with built-in launch templates, registry launch lookup, exact config overrides, and prompt-as-argument safety tests.
 - 2026-05-22: Completed Phase 3 Slice 3.4 with standardized prompt envelopes, artifact contracts, review/continue instructions, parent task context, and coordination rules.
+- 2026-05-22: Completed Phase 3 review; checks pass, README status reflects Phase 3, and stale `.gitkeep` files were removed from populated agent/config directories.
