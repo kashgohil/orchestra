@@ -347,15 +347,15 @@ Acceptance:
 
 ### Slice 2.3: Diff Helpers
 
-- [ ] Show changed files for a task worktree.
-- [ ] Show unified diff for a task worktree.
-- [ ] Write `diff.patch` on demand.
-- [ ] Return clear output for empty diffs.
+- [x] Show changed files for a task worktree.
+- [x] Show unified diff for a task worktree.
+- [x] Write `diff.patch` on demand.
+- [x] Return clear output for empty diffs.
 
 Acceptance:
 
-- [ ] `orchestra diff <task-id>` works before agents are implemented.
-- [ ] Empty diff is not treated as an error.
+- [x] `orchestra diff <task-id>` works before agents are implemented.
+- [x] Empty diff is not treated as an error.
 
 ### Slice 2.4: Cleanup Safety
 
@@ -818,3 +818,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 1 review; checks pass, README status reflects Phase 1, and stale `.gitkeep` files were removed from populated core/store directories.
 - 2026-05-22: Completed Phase 2 Slice 2.1 with git repo discovery for root, branch, HEAD commit, remotes, and typed non-git errors covered by temporary repo tests.
 - 2026-05-22: Completed Phase 2 Slice 2.2 with task worktree creation, sibling worktree paths, branch creation from HEAD, existing-path safety, and source repo cleanliness tests.
+- 2026-05-22: Completed Phase 2 Slice 2.3 with changed-file listing, unified diffs including untracked text files, on-demand `diff.patch` writing, and clear empty-diff output.
