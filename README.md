@@ -105,11 +105,14 @@ Completed:
 - Minimal CLI entrypoint and help output.
 - Placeholder command list.
 - Scaffold tests and typecheck.
+- Core domain types and task lifecycle helpers.
+- Deterministic path, branch, task ID, and tmux session naming helpers.
+- Per-repo SQLite task store.
+- Global repo index store.
+- Task artifact service for `TASK.md`, logs, events, and agent-editable files.
 
 Next:
 
-- Core domain types.
-- Task state storage.
 - Git worktree helpers.
 - Agent adapter system.
 - tmux runner.

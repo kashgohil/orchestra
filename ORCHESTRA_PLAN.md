@@ -815,3 +815,4 @@ Acceptance:
 - 2026-05-21: Completed Phase 1 Slice 1.3 with a Bun SQLite per-repo store, schema migrations, task CRUD, task events, idempotent initialization, and persistence tests.
 - 2026-05-22: Completed Phase 1 Slice 1.4 with a Bun SQLite global index, known repo tracking, latest task summaries, idempotent initialization, and persistence tests.
 - 2026-05-22: Completed Phase 1 Slice 1.5 with task artifact initialization, TASK.md rendering, placeholder artifact preservation, parseable JSONL events, and stdout/stderr append helpers.
+- 2026-05-22: Completed Phase 1 review; checks pass, README status reflects Phase 1, and stale `.gitkeep` files were removed from populated core/store directories.
