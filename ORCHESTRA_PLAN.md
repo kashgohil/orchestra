@@ -304,16 +304,16 @@ Acceptance:
 
 ### Slice 1.5: Artifact Service
 
-- [ ] Create task artifact directories.
-- [ ] Write `TASK.md`.
-- [ ] Append `LOG.jsonl`.
-- [ ] Create empty `PLAN.md`, `RESULT.md`, `REVIEW.md` when useful.
-- [ ] Append stdout/stderr logs.
+- [x] Create task artifact directories.
+- [x] Write `TASK.md`.
+- [x] Append `LOG.jsonl`.
+- [x] Create empty `PLAN.md`, `RESULT.md`, `REVIEW.md` when useful.
+- [x] Append stdout/stderr logs.
 
 Acceptance:
 
-- [ ] Artifacts are created consistently for each task.
-- [ ] JSONL events are parseable.
+- [x] Artifacts are created consistently for each task.
+- [x] JSONL events are parseable.
 
 ## Phase 2: Git Repo and Worktree Isolation
 
@@ -814,3 +814,4 @@ Acceptance:
 - 2026-05-21: Completed Phase 1 Slice 1.2 with deterministic task IDs, safe name sanitization, repo slugs, branch names, artifact paths, sibling worktree paths, and tmux session names using `orchestra-<task-id>`.
 - 2026-05-21: Completed Phase 1 Slice 1.3 with a Bun SQLite per-repo store, schema migrations, task CRUD, task events, idempotent initialization, and persistence tests.
 - 2026-05-22: Completed Phase 1 Slice 1.4 with a Bun SQLite global index, known repo tracking, latest task summaries, idempotent initialization, and persistence tests.
+- 2026-05-22: Completed Phase 1 Slice 1.5 with task artifact initialization, TASK.md rendering, placeholder artifact preservation, parseable JSONL events, and stdout/stderr append helpers.
