@@ -492,17 +492,17 @@ Goal: provide a complete non-TUI workflow for scripting and fallback.
 
 ### Slice 5.1: `init`, `agents`, `status`
 
-- [ ] Implement `orchestra init`.
-- [ ] Implement `orchestra agents`.
-- [ ] Implement `orchestra status`.
-- [ ] Add useful table output.
-- [ ] Add JSON output option if easy.
+- [x] Implement `orchestra init`.
+- [x] Implement `orchestra agents`.
+- [x] Implement `orchestra status`.
+- [x] Add useful table output.
+- [x] Add JSON output option if easy.
 
 Acceptance:
 
-- [ ] A repo can be initialized.
-- [ ] User can inspect agent availability.
-- [ ] User can inspect tasks.
+- [x] A repo can be initialized.
+- [x] User can inspect agent availability.
+- [x] User can inspect tasks.
 
 ### Slice 5.2: `run`, `logs`, `diff`
 
@@ -841,3 +841,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 4 Slice 4.4 with session reconciliation for running/starting tasks, missing-session failure marking, conservative completed/merged preservation, and event/artifact logging.
 - 2026-05-22: Completed Phase 4 review; checks pass, README status reflects Phase 4, the tmux architecture sketch matches implemented modules, and the stale tmux `.gitkeep` was removed.
 - 2026-05-22: Recorded the Phase 7 requirement to load and follow the local `opentui` skill before implementing the TUI.
+- 2026-05-22: Completed Phase 5 Slice 5.1 with `init`, `agents --json`, `status`, status reconciliation, repo/global store registration, and table/JSON output.

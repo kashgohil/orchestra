@@ -3,6 +3,7 @@ import { loadOrchestraConfig } from "../config"
 
 export interface AgentsCommandOptions extends AgentDetectionOptions {
   readonly cwd?: string
+  readonly json?: boolean
 }
 
 export async function runAgentsCommand(options: AgentsCommandOptions = {}): Promise<string> {
@@ -14,6 +15,10 @@ export async function runAgentsCommand(options: AgentsCommandOptions = {}): Prom
     ...(options.adapters === undefined ? {} : { adapters: options.adapters }),
   }
   const reports = await detectAgents(detectionOptions)
+
+  if (options.json === true) {
+    return JSON.stringify(reports, null, 2)
+  }
 
   return formatAgentDetectionReports(reports)
 }

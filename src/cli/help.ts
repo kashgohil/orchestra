@@ -35,7 +35,7 @@ export function formatHelp(): string {
     ...commandLines,
     "",
     "Current status:",
-    "  Phase 0 scaffold is active. Most commands are placeholders until their slices land.",
+    "  Core CLI workflow is being implemented. TUI, merge, and push remain planned.",
     "",
     "Examples:",
     '  orchestra run "fix failing auth tests" --agent codex',

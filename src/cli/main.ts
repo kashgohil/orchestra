@@ -2,9 +2,19 @@
 
 import { formatHelp, formatUnknownCommand } from "./help"
 import { runAgentsCommand } from "./agents"
+import { parseArgs, hasFlag } from "./args"
+import { formatCliError } from "./errors"
+import { runInitCommand } from "./init"
+import { runStatusCommand } from "./status"
+import type { CommandResolver } from "../agents"
+import type { TmuxCommandExecutor } from "../tmux"
 
 export interface CliOptions {
   readonly cwd?: string
+  readonly homeDir?: string
+  readonly now?: () => Date
+  readonly tmuxExecutor?: TmuxCommandExecutor
+  readonly commandResolver?: CommandResolver
   readonly stdout?: (message: string) => void
   readonly stderr?: (message: string) => void
 }
@@ -29,7 +39,7 @@ const PLACEHOLDER_COMMANDS = new Set([
 ])
 
 export async function runCli(argv: string[], options: CliOptions = {}): Promise<number> {
-  const [command] = argv
+  const [command, ...rawArgs] = argv
   const stdout = options.stdout ?? console.log
   const stderr = options.stderr ?? console.error
 
@@ -43,9 +53,43 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
     return 1
   }
 
-  if (command === "agents") {
-    stdout(await runAgentsCommand(options.cwd === undefined ? {} : { cwd: options.cwd }))
-    return 0
+  try {
+    const args = parseArgs(rawArgs)
+    const runtimeContext = {
+      ...(options.cwd === undefined ? {} : { cwd: options.cwd }),
+      ...(options.homeDir === undefined ? {} : { homeDir: options.homeDir }),
+      ...(options.now === undefined ? {} : { now: options.now }),
+      ...(options.tmuxExecutor === undefined ? {} : { tmuxExecutor: options.tmuxExecutor }),
+    }
+
+    if (command === "init") {
+      stdout(runInitCommand(runtimeContext))
+      return 0
+    }
+
+    if (command === "agents") {
+      stdout(
+        await runAgentsCommand({
+          ...(options.cwd === undefined ? {} : { cwd: options.cwd }),
+          ...(options.commandResolver === undefined ? {} : { commandResolver: options.commandResolver }),
+          json: hasFlag(args, "json"),
+        }),
+      )
+      return 0
+    }
+
+    if (command === "status") {
+      stdout(
+        runStatusCommand({
+          ...runtimeContext,
+          json: hasFlag(args, "json"),
+        }),
+      )
+      return 0
+    }
+  } catch (error) {
+    stderr(formatCliError(error))
+    return 1
   }
 
   stdout(

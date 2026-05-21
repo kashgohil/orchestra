@@ -1,6 +1,7 @@
 export * from "./artifact-service"
 export * from "./errors"
 export * from "./names"
+export * from "./orchestrator"
 export * from "./paths"
 export * from "./task-events"
 export * from "./task-status"
