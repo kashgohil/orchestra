@@ -263,17 +263,17 @@ Acceptance:
 
 ### Slice 1.2: Path and ID Helpers
 
-- [ ] Add task ID generation.
-- [ ] Add repo slug generation.
-- [ ] Add artifact path generation.
-- [ ] Add worktree path generation.
-- [ ] Add tmux session name generation.
-- [ ] Sanitize branch and path components.
+- [x] Add task ID generation.
+- [x] Add repo slug generation.
+- [x] Add artifact path generation.
+- [x] Add worktree path generation.
+- [x] Add tmux session name generation.
+- [x] Sanitize branch and path components.
 
 Acceptance:
 
-- [ ] Tests cover deterministic path generation.
-- [ ] Generated names avoid spaces and unsafe shell characters.
+- [x] Tests cover deterministic path generation.
+- [x] Generated names avoid spaces and unsafe shell characters.
 
 ### Slice 1.3: Per-repo Store
 
@@ -434,7 +434,7 @@ Goal: run every task in a managed, attachable tmux session.
 ### Slice 4.1: tmux Detection and Session Model
 
 - [ ] Detect `tmux`.
-- [ ] Define managed session naming: `orchestra:<task-id>`.
+- [ ] Define managed session naming: `orchestra-<task-id>`.
 - [ ] List managed sessions.
 - [ ] Check if a task session is alive.
 - [ ] Refuse unsafe/non-Orchestra session names.
@@ -811,3 +811,4 @@ Acceptance:
 - 2026-05-21: Completed Phase 0 scaffold with Bun package metadata, TypeScript config, source folders, minimal CLI help, placeholder commands, and CLI scaffold tests.
 - 2026-05-21: Added top-level README describing Orchestra, intended workflows, architecture, current status, and development commands.
 - 2026-05-21: Completed Phase 1 Slice 1.1 with core task/repo/agent/event types, typed Orchestra errors, status transition helpers, and lifecycle tests.
+- 2026-05-21: Completed Phase 1 Slice 1.2 with deterministic task IDs, safe name sanitization, repo slugs, branch names, artifact paths, sibling worktree paths, and tmux session names using `orchestra-<task-id>`.
