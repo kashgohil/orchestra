@@ -277,18 +277,18 @@ Acceptance:
 
 ### Slice 1.3: Per-repo Store
 
-- [ ] Add SQLite dependency.
-- [ ] Create `<repo>/.orchestra/orchestra.sqlite`.
-- [ ] Add migrations.
-- [ ] Add task insert/update/list/get methods.
-- [ ] Add task events table.
-- [ ] Add idempotent initialization.
+- [x] Use Bun's built-in SQLite support.
+- [x] Create `<repo>/.orchestra/orchestra.sqlite`.
+- [x] Add migrations.
+- [x] Add task insert/update/list/get methods.
+- [x] Add task events table.
+- [x] Add idempotent initialization.
 
 Acceptance:
 
-- [ ] Can create, read, update, and list tasks.
-- [ ] State survives process restart.
-- [ ] Migrations can run more than once safely.
+- [x] Can create, read, update, and list tasks.
+- [x] State survives process restart.
+- [x] Migrations can run more than once safely.
 
 ### Slice 1.4: Global Index
 
@@ -812,3 +812,4 @@ Acceptance:
 - 2026-05-21: Added top-level README describing Orchestra, intended workflows, architecture, current status, and development commands.
 - 2026-05-21: Completed Phase 1 Slice 1.1 with core task/repo/agent/event types, typed Orchestra errors, status transition helpers, and lifecycle tests.
 - 2026-05-21: Completed Phase 1 Slice 1.2 with deterministic task IDs, safe name sanitization, repo slugs, branch names, artifact paths, sibling worktree paths, and tmux session names using `orchestra-<task-id>`.
+- 2026-05-21: Completed Phase 1 Slice 1.3 with a Bun SQLite per-repo store, schema migrations, task CRUD, task events, idempotent initialization, and persistence tests.
