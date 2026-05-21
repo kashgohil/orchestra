@@ -845,3 +845,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 5 Slice 5.2 with `run`, `logs`, and `diff`, including task worktree creation, task/artifact persistence, tmux launch, event logs, stdout/stderr access, and diff patch writing.
 - 2026-05-22: Completed Phase 5 Slice 5.3 with `attach`, `stop`, and `cleanup`, including interactive attach support, persisted stopped status, managed-session kill safety, and active-worktree cleanup skips.
 - 2026-05-22: Completed Phase 5 Slice 5.4 with `review` and `continue`, linked child tasks, parent-worktree reuse, review/continue prompt context, and tmux launch coverage.
+- 2026-05-22: Completed Phase 5 review; checks pass, README/help status reflect the CLI workflow, and a stale orchestrator import was removed.

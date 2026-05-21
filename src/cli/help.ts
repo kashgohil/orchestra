@@ -35,7 +35,7 @@ export function formatHelp(): string {
     ...commandLines,
     "",
     "Current status:",
-    "  Core CLI workflow is being implemented. TUI, merge, and push remain planned.",
+    "  CLI workflow commands are available. Merge, push, doctor, and TUI remain planned.",
     "",
     "Examples:",
     '  orchestra run "fix failing auth tests" --agent codex',

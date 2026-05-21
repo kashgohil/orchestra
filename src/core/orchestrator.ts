@@ -22,7 +22,6 @@ import {
 import {
   appendTaskEventLog,
   initializeTaskArtifacts,
-  readTaskEventLog,
   readTaskOutput,
 } from "./artifact-service"
 import { createRepoSlug, createTaskBranchName, createTaskId, createTmuxSessionName } from "./names"

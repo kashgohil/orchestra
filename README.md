@@ -113,10 +113,11 @@ Completed:
 - Git repo discovery, worktree creation, diff helpers, and cleanup safety.
 - Agent adapter framework, detection, launch templates, and prompt envelopes.
 - Managed tmux session model, runner, attach/stop controls, and reconciliation.
+- CLI workflow commands for init, agents, status, run, logs, diff, attach, stop, cleanup, review, and continue.
 
 Next:
 
-- CLI workflow commands.
+- Merge, commit, and push workflow.
 - OpenTUI command center.
 
 See [ORCHESTRA_PLAN.md](./ORCHESTRA_PLAN.md) for the full phased implementation plan.
