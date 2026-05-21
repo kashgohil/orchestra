@@ -809,3 +809,4 @@ Acceptance:
 
 - 2026-05-21: Created initial persistent implementation plan.
 - 2026-05-21: Completed Phase 0 scaffold with Bun package metadata, TypeScript config, source folders, minimal CLI help, placeholder commands, and CLI scaffold tests.
+- 2026-05-21: Added top-level README describing Orchestra, intended workflows, architecture, current status, and development commands.
