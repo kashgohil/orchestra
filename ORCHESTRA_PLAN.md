@@ -849,3 +849,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 6 Slice 6.1 with merge precondition checks for task/source/worktree existence, active-task safety, non-empty diffs, dirty source detection, and Orchestra state filtering.
 - 2026-05-22: Completed Phase 6 Slice 6.2 with tracked patch application, untracked file copy, local merge commits, merged task status/events, and preservation of task worktrees/artifacts without pushing.
 - 2026-05-22: Completed Phase 6 Slice 6.3 with explicit `merge --push`, configured remote/source-branch push behavior, push events, and failed-push recovery that preserves the local merge commit.
+- 2026-05-22: Completed Phase 6 review; checks pass and README/help status now reflect local merge, commit, and explicit push support.
