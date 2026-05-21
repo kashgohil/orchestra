@@ -12,6 +12,7 @@ import {
   runContinueCommand,
   runDiffCommand,
   runLogsCommand,
+  runMergeCommand,
   runReviewCommand,
   runStopCommand,
   runTaskCommand,
@@ -135,6 +136,11 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
 
     if (command === "continue") {
       stdout(runContinueCommand(args, runtimeContext))
+      return 0
+    }
+
+    if (command === "merge") {
+      stdout(runMergeCommand(args, runtimeContext))
       return 0
     }
   } catch (error) {

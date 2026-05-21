@@ -3,6 +3,7 @@ import {
   cleanupTasks,
   getTaskDiff,
   getTaskLogs,
+  mergeTask,
   OrchestraError,
   startContinueTask,
   startReviewTask,
@@ -152,6 +153,24 @@ export function runContinueCommand(args: ParsedArgs, context: OrchestraRuntimeCo
   })
 
   return formatStartedChildTask("Started continue task.", result)
+}
+
+export function runMergeCommand(args: ParsedArgs, context: OrchestraRuntimeContext = {}): string {
+  const taskId = requirePositional(args, 0, "task ID")
+
+  if (hasFlag(args, "push")) {
+    throw new OrchestraError("CONFIG_INVALID", "`orchestra merge --push` is not implemented yet.")
+  }
+
+  const result = mergeTask(taskId, context)
+
+  return [
+    "Merged task.",
+    `Task: ${result.task.id}`,
+    `Status: ${result.task.status}`,
+    `Commit: ${result.commitSha}`,
+    `Pushed: ${result.pushed ? "yes" : "no"}`,
+  ].join("\n")
 }
 
 function formatCleanupState(result: CleanupTaskResult): string {

@@ -8,10 +8,12 @@ import {
   createTmuxSessionName,
   getRepoId,
   getTaskArtifactDir,
+  getTaskArtifactManifest,
   getTaskWorktreePath,
   type Task,
 } from "../src/core"
 import {
+  applyTaskChangesAndCommit,
   assertTaskMergePreconditions,
   createTaskWorktreeFromTask,
   getSourceRepoUserChangedPaths,
@@ -85,6 +87,34 @@ describe("git merge preconditions", () => {
     const task = createTestTask(repoRoot, "task-20260522-100000-missing", "Missing worktree")
 
     expect(() => assertTaskMergePreconditions(task)).toThrow("Task worktree path does not exist")
+  })
+
+  test("applies task changes, commits locally, and preserves Orchestra state", () => {
+    const repoRoot = createGitRepo()
+    const task = createTestTask(repoRoot, "task-20260522-100000-apply", "Apply changed work")
+
+    createTaskWorktreeFromTask(task)
+    writeFileSync(path.join(task.worktreePath, "README.md"), "# Changed Repo\n", "utf8")
+    writeFileSync(path.join(task.worktreePath, "feature.txt"), "feature\n", "utf8")
+    mkdirSync(path.join(repoRoot, ".orchestra"), { recursive: true })
+    writeFileSync(path.join(repoRoot, ".orchestra", "state.sqlite"), "state\n", "utf8")
+    writeFileSync(path.join(repoRoot, "orchestra.config.json"), "{}\n", "utf8")
+
+    const result = applyTaskChangesAndCommit(task)
+    const committedFiles = runGitText(["show", "--name-only", "--pretty=format:", "HEAD"], repoRoot)
+      .split("\n")
+      .filter((line) => line.length > 0)
+
+    expect(result.commitSha).toBe(runGitText(["rev-parse", "HEAD"], repoRoot))
+    expect(result.commitMessage).toContain(task.id)
+    expect(runGitText(["log", "-1", "--pretty=%s"], repoRoot)).toContain(task.id)
+    expect(runGitText(["show", "HEAD:README.md"], repoRoot)).toBe("# Changed Repo")
+    expect(runGitText(["show", "HEAD:feature.txt"], repoRoot)).toBe("feature")
+    expect(committedFiles).toEqual(["README.md", "feature.txt"])
+    expect(getSourceRepoUserChangedPaths(repoRoot)).toEqual([])
+    expect(runGitText(["status", "--short"], repoRoot)).toContain(".orchestra")
+    expect(runGitText(["status", "--short"], repoRoot)).toContain("orchestra.config.json")
+    expect(result.patchPath).toBe(getTaskArtifactManifest(task).files.diff)
   })
 })
 

@@ -300,6 +300,61 @@ describe("CLI workflow", () => {
     expect(tmuxExecutor.calls.filter((call) => call[0] === "new-session")).toHaveLength(3)
     expect(tmuxExecutor.calls.some((call) => call.join("\n").includes("review-target.txt"))).toBe(true)
   })
+
+  test("merge applies task changes and creates a local commit without pushing", async () => {
+    const repoRoot = createGitRepo()
+    const homeDir = createTempDir("orchestra-cli-home-")
+    const tmuxExecutor = recordingTmuxExecutor(0)
+    const mergeOutput: string[] = []
+
+    expect(
+      await runCli(["run", "Merge", "task", "--agent", "codex", "--token", "merge"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: () => undefined,
+      }),
+    ).toBe(0)
+
+    const taskId = "task-20260522-100000-merge"
+    const firstStore = openRepoStore(repoRoot)
+    const task = firstStore.requireTask(taskId)
+    firstStore.close()
+
+    writeFileSync(path.join(task.worktreePath, "merged.txt"), "merged\n", "utf8")
+
+    expect(
+      await runCli(["stop", taskId], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: () => undefined,
+      }),
+    ).toBe(0)
+    expect(
+      await runCli(["merge", taskId], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        stdout: (message) => mergeOutput.push(message),
+      }),
+    ).toBe(0)
+
+    const secondStore = openRepoStore(repoRoot)
+    const mergedTask = secondStore.requireTask(taskId)
+    const events = secondStore.listTaskEvents(taskId)
+    secondStore.close()
+
+    expect(mergedTask.status).toBe("merged")
+    expect(mergedTask.completedAt).toBe("2026-05-22T10:00:00.000Z")
+    expect(events.map((event) => event.type)).toContain("task.merged")
+    expect(runGitText(["show", "HEAD:merged.txt"], repoRoot)).toBe("merged")
+    expect(runGitText(["log", "-1", "--pretty=%s"], repoRoot)).toContain(taskId)
+    expect(mergeOutput.join("\n")).toContain("Pushed: no")
+    expect(existsSync(task.worktreePath)).toBe(true)
+  })
 })
 
 function fixedClock(): () => Date {

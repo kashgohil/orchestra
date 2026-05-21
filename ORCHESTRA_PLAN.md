@@ -557,16 +557,16 @@ Acceptance:
 
 ### Slice 6.2: Apply and Commit
 
-- [ ] Apply task changes back to source repo.
-- [ ] Create a local commit.
-- [ ] Use generated commit message with task ID and prompt summary.
-- [ ] Mark task `merged`.
-- [ ] Preserve task worktree and artifacts after merge.
+- [x] Apply task changes back to source repo.
+- [x] Create a local commit.
+- [x] Use generated commit message with task ID and prompt summary.
+- [x] Mark task `merged`.
+- [x] Preserve task worktree and artifacts after merge.
 
 Acceptance:
 
-- [ ] `orchestra merge <task-id>` commits locally.
-- [ ] It does not push.
+- [x] `orchestra merge <task-id>` commits locally.
+- [x] It does not push.
 
 ### Slice 6.3: Explicit Push
 
@@ -847,3 +847,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 5 Slice 5.4 with `review` and `continue`, linked child tasks, parent-worktree reuse, review/continue prompt context, and tmux launch coverage.
 - 2026-05-22: Completed Phase 5 review; checks pass, README/help status reflect the CLI workflow, and a stale orchestrator import was removed.
 - 2026-05-22: Completed Phase 6 Slice 6.1 with merge precondition checks for task/source/worktree existence, active-task safety, non-empty diffs, dirty source detection, and Orchestra state filtering.
+- 2026-05-22: Completed Phase 6 Slice 6.2 with tracked patch application, untracked file copy, local merge commits, merged task status/events, and preservation of task worktrees/artifacts without pushing.

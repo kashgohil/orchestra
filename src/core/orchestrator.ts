@@ -5,6 +5,7 @@ import { buildAgentLaunchCommandById, buildAgentPromptEnvelopeById } from "../ag
 import { loadOrchestraConfig, ORCHESTRA_CONFIG_FILE, type OrchestraConfig } from "../config"
 import { formatWorktreeDiff, writeTaskDiffPatch } from "../git/diff"
 import { canCleanupTaskWorktree, cleanupTaskWorktree } from "../git/cleanup"
+import { applyTaskChangesAndCommit } from "../git/merge"
 import { discoverGitRepo, type GitRepoInfo } from "../git/repo"
 import { createTaskWorktreeFromTask } from "../git/worktree"
 import { openGlobalIndexStore, type KnownRepoRecord } from "../store/global-index-store"
@@ -96,6 +97,13 @@ export interface CleanupTaskResult {
   readonly removed: boolean
   readonly worktreePath: AbsolutePath
   readonly reason?: string
+}
+
+export interface MergeTaskResult {
+  readonly task: Task
+  readonly commitSha: string
+  readonly commitMessage: string
+  readonly pushed: boolean
 }
 
 export const DEFAULT_ORCHESTRA_CONFIG = {
@@ -393,6 +401,64 @@ export function cleanupTasks(context: OrchestraRuntimeContext = {}): readonly Cl
     })
   } finally {
     repoStore.close()
+  }
+}
+
+export function mergeTask(taskId: TaskId, context: OrchestraRuntimeContext = {}): MergeTaskResult {
+  const repoInfo = discoverGitRepo(context.cwd)
+  const repoStore = openRepoStore(repoInfo.rootPath)
+  const globalStore = openGlobalIndexStore(context.homeDir === undefined ? {} : { homeDir: context.homeDir })
+
+  try {
+    const repo = registerRepo({
+      repoInfo,
+      globalStore,
+      ...(context.now === undefined ? {} : { now: context.now }),
+    })
+    const task = repoStore.requireTask(taskId)
+    const mergeResult = applyTaskChangesAndCommit(task)
+    const now = context.now?.().toISOString() ?? new Date().toISOString()
+    const mergedTask = repoStore.updateTask(task.id, {
+      status: "merged",
+      updatedAt: now,
+      completedAt: now,
+      failureReason: null,
+    })
+    const event = createTaskEvent({
+      task: mergedTask,
+      type: "task.merged",
+      level: "info",
+      message: "Merged task changes into source repo.",
+      data: {
+        commitSha: mergeResult.commitSha,
+        commitMessage: mergeResult.commitMessage,
+        changedFiles: mergeResult.changedFiles.map((file) => ({
+          path: file.path,
+          status: file.status,
+        })),
+        patchPath: mergeResult.patchPath,
+      },
+      ...(context.now === undefined ? {} : { now: context.now }),
+    })
+
+    repoStore.appendTaskEvent(event)
+    appendTaskEventLog(mergedTask, event)
+    updateRepoTaskSummary({
+      repoId: repo.id,
+      tasks: repoStore.listTasks(),
+      globalStore,
+      ...(context.now === undefined ? {} : { now: context.now }),
+    })
+
+    return {
+      task: mergedTask,
+      commitSha: mergeResult.commitSha,
+      commitMessage: mergeResult.commitMessage,
+      pushed: false,
+    }
+  } finally {
+    repoStore.close()
+    globalStore.close()
   }
 }
 
