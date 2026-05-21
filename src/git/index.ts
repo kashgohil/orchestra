@@ -1,5 +1,6 @@
 export * from "./cleanup"
 export * from "./command"
 export * from "./diff"
+export * from "./merge"
 export * from "./repo"
 export * from "./worktree"

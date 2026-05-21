@@ -544,16 +544,16 @@ Goal: safely bring task worktree changes back to the source repo.
 
 ### Slice 6.1: Merge Preconditions
 
-- [ ] Verify task exists.
-- [ ] Verify task worktree exists.
-- [ ] Verify source repo exists.
-- [ ] Verify task has a diff.
-- [ ] Detect dirty source repo state.
-- [ ] Define clear error messages for conflicts.
+- [x] Verify task exists.
+- [x] Verify task worktree exists.
+- [x] Verify source repo exists.
+- [x] Verify task has a diff.
+- [x] Detect dirty source repo state.
+- [x] Define clear error messages for conflicts.
 
 Acceptance:
 
-- [ ] Unsafe merge attempts fail before changing source repo.
+- [x] Unsafe merge attempts fail before changing source repo.
 
 ### Slice 6.2: Apply and Commit
 
@@ -846,3 +846,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 5 Slice 5.3 with `attach`, `stop`, and `cleanup`, including interactive attach support, persisted stopped status, managed-session kill safety, and active-worktree cleanup skips.
 - 2026-05-22: Completed Phase 5 Slice 5.4 with `review` and `continue`, linked child tasks, parent-worktree reuse, review/continue prompt context, and tmux launch coverage.
 - 2026-05-22: Completed Phase 5 review; checks pass, README/help status reflect the CLI workflow, and a stale orchestrator import was removed.
+- 2026-05-22: Completed Phase 6 Slice 6.1 with merge precondition checks for task/source/worktree existence, active-task safety, non-empty diffs, dirty source detection, and Orchestra state filtering.
