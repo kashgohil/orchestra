@@ -247,19 +247,19 @@ Goal: model tasks, repos, agents, and state before running real agents.
 
 ### Slice 1.1: Core Types
 
-- [ ] Define `Task`.
-- [ ] Define `TaskStatus`.
-- [ ] Define `TaskKind`.
-- [ ] Define `RepoRecord`.
-- [ ] Define `AgentId`.
-- [ ] Define `TaskEvent`.
-- [ ] Define `AgentAdapter`.
-- [ ] Define typed errors for expected failures.
+- [x] Define `Task`.
+- [x] Define `TaskStatus`.
+- [x] Define `TaskKind`.
+- [x] Define `RepoRecord`.
+- [x] Define `AgentId`.
+- [x] Define `TaskEvent`.
+- [x] Define `AgentAdapter`.
+- [x] Define typed errors for expected failures.
 
 Acceptance:
 
-- [ ] Types compile under strict TypeScript.
-- [ ] Unit tests cover status transition helpers.
+- [x] Types compile under strict TypeScript.
+- [x] Unit tests cover status transition helpers.
 
 ### Slice 1.2: Path and ID Helpers
 
@@ -810,3 +810,4 @@ Acceptance:
 - 2026-05-21: Created initial persistent implementation plan.
 - 2026-05-21: Completed Phase 0 scaffold with Bun package metadata, TypeScript config, source folders, minimal CLI help, placeholder commands, and CLI scaffold tests.
 - 2026-05-21: Added top-level README describing Orchestra, intended workflows, architecture, current status, and development commands.
+- 2026-05-21: Completed Phase 1 Slice 1.1 with core task/repo/agent/event types, typed Orchestra errors, status transition helpers, and lifecycle tests.
