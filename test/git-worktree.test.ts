@@ -44,7 +44,7 @@ describe("git worktree creation", () => {
   test("uses explicit branch, base commit, and worktree path when provided", () => {
     const repoRoot = createGitRepo()
     const headCommit = runGitText(["rev-parse", "HEAD"], repoRoot)
-    const customWorktreePath = path.join(path.dirname(repoRoot), "custom-worktree")
+    const customWorktreePath = createSiblingPath(repoRoot, "custom-worktree")
 
     const worktreeInfo = createTaskWorktree({
       repoRootPath: repoRoot,
@@ -62,7 +62,7 @@ describe("git worktree creation", () => {
 
   test("refuses to use an existing worktree path", () => {
     const repoRoot = createGitRepo()
-    const existingPath = path.join(path.dirname(repoRoot), "existing-worktree")
+    const existingPath = createSiblingPath(repoRoot, "existing-worktree")
 
     mkdirSync(existingPath)
 
@@ -83,6 +83,13 @@ function createTempDir(): string {
   tempRoots.push(realTempRoot)
 
   return realTempRoot
+}
+
+function createSiblingPath(repoRoot: string, name: string): string {
+  const siblingPath = path.join(path.dirname(repoRoot), `${name}-${path.basename(repoRoot)}`)
+  tempRoots.push(siblingPath)
+
+  return siblingPath
 }
 
 function createGitRepo(): string {
