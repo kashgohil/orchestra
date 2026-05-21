@@ -433,16 +433,16 @@ Goal: run every task in a managed, attachable tmux session.
 
 ### Slice 4.1: tmux Detection and Session Model
 
-- [ ] Detect `tmux`.
-- [ ] Define managed session naming: `orchestra-<task-id>`.
-- [ ] List managed sessions.
-- [ ] Check if a task session is alive.
-- [ ] Refuse unsafe/non-Orchestra session names.
+- [x] Detect `tmux`.
+- [x] Define managed session naming: `orchestra-<task-id>`.
+- [x] List managed sessions.
+- [x] Check if a task session is alive.
+- [x] Refuse unsafe/non-Orchestra session names.
 
 Acceptance:
 
-- [ ] `orchestra doctor` can later report tmux availability.
-- [ ] Session helpers are unit-tested where shelling out can be mocked.
+- [x] `orchestra doctor` can later report tmux availability.
+- [x] Session helpers are unit-tested where shelling out can be mocked.
 
 ### Slice 4.2: Start Task Session
 
@@ -826,3 +826,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 3 Slice 3.3 with built-in launch templates, registry launch lookup, exact config overrides, and prompt-as-argument safety tests.
 - 2026-05-22: Completed Phase 3 Slice 3.4 with standardized prompt envelopes, artifact contracts, review/continue instructions, parent task context, and coordination rules.
 - 2026-05-22: Completed Phase 3 review; checks pass, README status reflects Phase 3, and stale `.gitkeep` files were removed from populated agent/config directories.
+- 2026-05-22: Completed Phase 4 Slice 4.1 with tmux detection, managed session naming, session listing, alive checks, and injectable executor tests.
