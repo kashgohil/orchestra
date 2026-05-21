@@ -334,16 +334,16 @@ Acceptance:
 
 ### Slice 2.2: Worktree Creation
 
-- [ ] Create sibling `.orchestra-worktrees/<repo-slug>/<task-id>/`.
-- [ ] Create task branch from current HEAD.
-- [ ] Add git worktree for the task branch.
-- [ ] Persist branch and worktree path on the task.
-- [ ] Handle already-existing worktree path safely.
+- [x] Create sibling `.orchestra-worktrees/<repo-slug>/<task-id>/`.
+- [x] Create task branch from current HEAD.
+- [x] Add git worktree for the task branch.
+- [x] Persist branch and worktree path on the task.
+- [x] Handle already-existing worktree path safely.
 
 Acceptance:
 
-- [ ] A task can create an isolated worktree.
-- [ ] The source repo working tree is not modified by creation.
+- [x] A task can create an isolated worktree.
+- [x] The source repo working tree is not modified by creation.
 
 ### Slice 2.3: Diff Helpers
 
@@ -817,3 +817,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 1 Slice 1.5 with task artifact initialization, TASK.md rendering, placeholder artifact preservation, parseable JSONL events, and stdout/stderr append helpers.
 - 2026-05-22: Completed Phase 1 review; checks pass, README status reflects Phase 1, and stale `.gitkeep` files were removed from populated core/store directories.
 - 2026-05-22: Completed Phase 2 Slice 2.1 with git repo discovery for root, branch, HEAD commit, remotes, and typed non-git errors covered by temporary repo tests.
+- 2026-05-22: Completed Phase 2 Slice 2.2 with task worktree creation, sibling worktree paths, branch creation from HEAD, existing-path safety, and source repo cleanliness tests.
