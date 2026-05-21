@@ -14,6 +14,7 @@ that should survive a context reset.
 
 - Runtime: Bun-first TypeScript.
 - TUI: OpenTUI React.
+- TUI implementation: load and follow the local `opentui` skill before starting Phase 7 code.
 - Session manager: tmux from v1.
 - Scope: local machine only.
 - Core interface: CLI and TUI both call the same orchestration core.
@@ -583,6 +584,10 @@ Acceptance:
 
 Goal: make `orchestra` open an OpenCode-like command interface.
 
+Implementation note:
+
+- [ ] Before editing TUI code, load the local `opentui` skill and follow its OpenTUI React, layout, keyboard, component, and testing guidance.
+
 ### Slice 7.1: TUI Shell
 
 - [ ] Add OpenTUI React dependencies.
@@ -835,3 +840,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 4 Slice 4.3 with attach command construction, selected-session attach, idempotent stop handling, stopped status updates, and stop event logging.
 - 2026-05-22: Completed Phase 4 Slice 4.4 with session reconciliation for running/starting tasks, missing-session failure marking, conservative completed/merged preservation, and event/artifact logging.
 - 2026-05-22: Completed Phase 4 review; checks pass, README status reflects Phase 4, the tmux architecture sketch matches implemented modules, and the stale tmux `.gitkeep` was removed.
+- 2026-05-22: Recorded the Phase 7 requirement to load and follow the local `opentui` skill before implementing the TUI.
