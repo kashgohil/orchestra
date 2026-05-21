@@ -472,14 +472,14 @@ Acceptance:
 
 ### Slice 4.4: Session Reconciliation
 
-- [ ] Reconcile persisted task status with tmux state.
-- [ ] Mark missing running sessions as `failed` or `stopped` with a clear reason.
-- [ ] Keep completed detection conservative until reliable agent exit markers exist.
+- [x] Reconcile persisted task status with tmux state.
+- [x] Mark missing running sessions as `failed` or `stopped` with a clear reason.
+- [x] Keep completed detection conservative until reliable agent exit markers exist.
 
 Acceptance:
 
-- [ ] `status` does not lie about dead sessions.
-- [ ] Reconciliation does not mutate completed/merged tasks incorrectly.
+- [x] `status` does not lie about dead sessions.
+- [x] Reconciliation does not mutate completed/merged tasks incorrectly.
 
 ## Phase 5: CLI Workflow
 
@@ -829,3 +829,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 4 Slice 4.1 with tmux detection, managed session naming, session listing, alive checks, and injectable executor tests.
 - 2026-05-22: Completed Phase 4 Slice 4.2 with managed tmux session startup, bash launch wrappers, stdout/stderr log capture, starting/running status updates, and task start/failure event logging.
 - 2026-05-22: Completed Phase 4 Slice 4.3 with attach command construction, selected-session attach, idempotent stop handling, stopped status updates, and stop event logging.
+- 2026-05-22: Completed Phase 4 Slice 4.4 with session reconciliation for running/starting tasks, missing-session failure marking, conservative completed/merged preservation, and event/artifact logging.

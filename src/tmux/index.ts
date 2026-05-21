@@ -1,5 +1,6 @@
 export * from "./control"
 export * from "./command"
+export * from "./reconcile"
 export * from "./runner"
 export * from "./session"
 export * from "./shell"
