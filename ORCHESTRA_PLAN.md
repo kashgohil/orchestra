@@ -416,16 +416,16 @@ Acceptance:
 
 ### Slice 3.4: Prompt Envelopes
 
-- [ ] Standardize task prompt context.
-- [ ] Include source repo path, worktree path, task ID, and artifact paths.
-- [ ] Tell agents to write results to `RESULT.md`.
-- [ ] Tell review agents to write review notes to `REVIEW.md`.
-- [ ] Avoid agent-to-agent direct communication.
+- [x] Standardize task prompt context.
+- [x] Include source repo path, worktree path, task ID, and artifact paths.
+- [x] Tell agents to write results to `RESULT.md`.
+- [x] Tell review agents to write review notes to `REVIEW.md`.
+- [x] Avoid agent-to-agent direct communication.
 
 Acceptance:
 
-- [ ] Generated prompts contain all required task context.
-- [ ] Review and continue prompts include parent task context.
+- [x] Generated prompts contain all required task context.
+- [x] Review and continue prompts include parent task context.
 
 ## Phase 4: tmux Runner
 
@@ -824,3 +824,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 3 Slice 3.1 with config loading, adapter construction, detection contracts, launch command rendering, TTY metadata, and configurable command overrides.
 - 2026-05-22: Completed Phase 3 Slice 3.2 with built-in Codex, Claude, Cursor, Antigravity, Gemini, and OpenCode detection plus the `orchestra agents` command.
 - 2026-05-22: Completed Phase 3 Slice 3.3 with built-in launch templates, registry launch lookup, exact config overrides, and prompt-as-argument safety tests.
+- 2026-05-22: Completed Phase 3 Slice 3.4 with standardized prompt envelopes, artifact contracts, review/continue instructions, parent task context, and coordination rules.

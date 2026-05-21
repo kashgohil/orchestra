@@ -9,6 +9,7 @@ import type {
   AgentLaunchInput,
   AgentPromptEnvelopeInput,
 } from "../core/types"
+import { formatAgentPromptEnvelope } from "./prompt-envelope"
 
 export type CommandResolver = (command: string) => string | undefined
 
@@ -48,7 +49,7 @@ export function createAgentAdapter(definition: AgentAdapterDefinition): AgentAda
       return buildAgentLaunchCommand(definition, input)
     },
     defaultPromptEnvelope(input: AgentPromptEnvelopeInput): string {
-      return definition.promptEnvelope?.(input) ?? input.instruction
+      return definition.promptEnvelope?.(input) ?? formatAgentPromptEnvelope(input)
     },
   }
 }
