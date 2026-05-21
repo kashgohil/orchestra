@@ -1,4 +1,11 @@
-# 🎼 Orchestra
+<p align="center">
+  <picture>
+    <source srcset="./assets/orchestra.svg" type="image/svg+xml">
+    <img src="./assets/orchestra.png" alt="Orchestra app icon" width="128" height="128">
+  </picture>
+</p>
+
+# Orchestra
 
 Orchestra is a local command center for coding agents.
 
@@ -110,6 +117,11 @@ Next:
 
 See [ORCHESTRA_PLAN.md](./ORCHESTRA_PLAN.md) for the full phased implementation plan.
 
+## App Icon
+
+- [SVG icon](./assets/orchestra.svg)
+- [PNG icon](./assets/orchestra.png)
+
 ## Development
 
 Requirements:
@@ -153,4 +165,3 @@ bun dist/orchestra.js --help
 - Explicit stop, merge, and push behavior.
 - TUI for daily use, CLI for automation and recovery.
 - Durable artifacts instead of fragile chat memory.
-
