@@ -292,15 +292,15 @@ Acceptance:
 
 ### Slice 1.4: Global Index
 
-- [ ] Create `~/.orchestra/index.sqlite`.
-- [ ] Track known repos.
-- [ ] Track latest task summary per repo.
-- [ ] Add command-safe initialization.
+- [x] Create `~/.orchestra/index.sqlite`.
+- [x] Track known repos.
+- [x] Track latest task summary per repo.
+- [x] Add command-safe initialization.
 
 Acceptance:
 
-- [ ] TUI can later list repos without scanning the filesystem.
-- [ ] Per-repo tasks remain the source of truth for task details.
+- [x] TUI can later list repos without scanning the filesystem.
+- [x] Per-repo tasks remain the source of truth for task details.
 
 ### Slice 1.5: Artifact Service
 
@@ -813,3 +813,4 @@ Acceptance:
 - 2026-05-21: Completed Phase 1 Slice 1.1 with core task/repo/agent/event types, typed Orchestra errors, status transition helpers, and lifecycle tests.
 - 2026-05-21: Completed Phase 1 Slice 1.2 with deterministic task IDs, safe name sanitization, repo slugs, branch names, artifact paths, sibling worktree paths, and tmux session names using `orchestra-<task-id>`.
 - 2026-05-21: Completed Phase 1 Slice 1.3 with a Bun SQLite per-repo store, schema migrations, task CRUD, task events, idempotent initialization, and persistence tests.
+- 2026-05-22: Completed Phase 1 Slice 1.4 with a Bun SQLite global index, known repo tracking, latest task summaries, idempotent initialization, and persistence tests.
