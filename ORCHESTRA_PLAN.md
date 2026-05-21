@@ -321,16 +321,16 @@ Goal: every task runs in an isolated git worktree.
 
 ### Slice 2.1: Repo Discovery
 
-- [ ] Detect git repo root.
-- [ ] Detect current branch.
-- [ ] Detect current HEAD commit.
-- [ ] Detect remote names.
-- [ ] Refuse to run outside a git repo with a clear error.
+- [x] Detect git repo root.
+- [x] Detect current branch.
+- [x] Detect current HEAD commit.
+- [x] Detect remote names.
+- [x] Refuse to run outside a git repo with a clear error.
 
 Acceptance:
 
-- [ ] Tests work in temporary git repositories.
-- [ ] Non-git directories fail with actionable messages.
+- [x] Tests work in temporary git repositories.
+- [x] Non-git directories fail with actionable messages.
 
 ### Slice 2.2: Worktree Creation
 
@@ -816,3 +816,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 1 Slice 1.4 with a Bun SQLite global index, known repo tracking, latest task summaries, idempotent initialization, and persistence tests.
 - 2026-05-22: Completed Phase 1 Slice 1.5 with task artifact initialization, TASK.md rendering, placeholder artifact preservation, parseable JSONL events, and stdout/stderr append helpers.
 - 2026-05-22: Completed Phase 1 review; checks pass, README status reflects Phase 1, and stale `.gitkeep` files were removed from populated core/store directories.
+- 2026-05-22: Completed Phase 2 Slice 2.1 with git repo discovery for root, branch, HEAD commit, remotes, and typed non-git errors covered by temporary repo tests.
