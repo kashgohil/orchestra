@@ -7,6 +7,8 @@ export type OrchestraErrorCode =
   | "MERGE_CONFLICT"
   | "NOT_GIT_REPO"
   | "PUSH_FAILED"
+  | "REPO_NOT_FOUND"
+  | "REPO_TASK_SUMMARY_NOT_FOUND"
   | "STORE_UNAVAILABLE"
   | "TASK_NOT_FOUND"
   | "TMUX_SESSION_NOT_FOUND"
