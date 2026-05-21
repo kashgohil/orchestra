@@ -1,0 +1,20 @@
+{
+  "name": "orchestra",
+  "version": "0.0.0",
+  "description": "Local coding-agent orchestrator for Bun, tmux, git worktrees, and OpenTUI.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "orchestra": "./dist/orchestra.js"
+  },
+  "scripts": {
+    "dev": "bun run src/cli/main.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "build": "bun build src/cli/main.ts --target=bun --outfile=dist/orchestra.js"
+  },
+  "devDependencies": {
+    "bun-types": "^1.3.0",
+    "typescript": "^5.9.3"
+  }
+}
