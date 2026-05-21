@@ -386,18 +386,18 @@ Acceptance:
 
 ### Slice 3.2: Agent Detection
 
-- [ ] Detect `codex`.
-- [ ] Detect `claude`.
-- [ ] Detect `cursor-agent` or configured Cursor command.
-- [ ] Detect `antigravity`.
-- [ ] Detect `gemini`.
-- [ ] Detect `opencode`.
-- [ ] Add `orchestra agents`.
+- [x] Detect `codex`.
+- [x] Detect `claude`.
+- [x] Detect `cursor-agent` or configured Cursor command.
+- [x] Detect `antigravity`.
+- [x] Detect `gemini`.
+- [x] Detect `opencode`.
+- [x] Add `orchestra agents`.
 
 Acceptance:
 
-- [ ] Missing agents are reported, not fatal.
-- [ ] Configured command overrides are respected.
+- [x] Missing agents are reported, not fatal.
+- [x] Configured command overrides are respected.
 
 ### Slice 3.3: Launch Commands
 
@@ -822,3 +822,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 2 Slice 2.4 with cleanup safety for stopped/completed/merged worktrees, running-task protection, source repo path protection, and dirty-worktree preservation.
 - 2026-05-22: Completed Phase 2 review; checks pass, README status reflects Phase 2, git command failures use typed errors, and stale `.gitkeep` was removed from the populated git directory.
 - 2026-05-22: Completed Phase 3 Slice 3.1 with config loading, adapter construction, detection contracts, launch command rendering, TTY metadata, and configurable command overrides.
+- 2026-05-22: Completed Phase 3 Slice 3.2 with built-in Codex, Claude, Cursor, Antigravity, Gemini, and OpenCode detection plus the `orchestra agents` command.

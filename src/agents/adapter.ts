@@ -96,5 +96,9 @@ function resolveCommand(
     return command
   }
 
-  return commandResolver?.(command) ?? Bun.which(command) ?? undefined
+  if (commandResolver !== undefined) {
+    return commandResolver(command)
+  }
+
+  return Bun.which(command) ?? undefined
 }

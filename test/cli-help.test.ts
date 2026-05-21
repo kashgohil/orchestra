@@ -18,7 +18,7 @@ describe("CLI scaffold", () => {
     expect(formatUnknownCommand("nope")).toContain("orchestra --help")
   })
 
-  test("runCli returns non-zero for unknown commands", () => {
-    expect(runCli(["nope"])).toBe(1)
+  test("runCli returns non-zero for unknown commands", async () => {
+    expect(await runCli(["nope"])).toBe(1)
   })
 })
