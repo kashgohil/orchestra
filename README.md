@@ -110,10 +110,10 @@ Completed:
 - Per-repo SQLite task store.
 - Global repo index store.
 - Task artifact service for `TASK.md`, logs, events, and agent-editable files.
+- Git repo discovery, worktree creation, diff helpers, and cleanup safety.
 
 Next:
 
-- Git worktree helpers.
 - Agent adapter system.
 - tmux runner.
 - OpenTUI command center.

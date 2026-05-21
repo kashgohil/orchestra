@@ -1,5 +1,6 @@
 import path from "node:path"
 
+import { OrchestraError } from "../core/errors"
 import type { AbsolutePath } from "../core/types"
 
 export interface GitCommandResult {
@@ -28,7 +29,9 @@ export function runGitCommand(args: readonly string[], options: RunGitCommandOpt
   }
 
   if (!options.allowFailure && result.exitCode !== 0) {
-    throw new Error(`git ${args.join(" ")} failed: ${result.stderr.trim() || result.stdout.trim()}`)
+    throw new OrchestraError("GIT_COMMAND_FAILED", `git ${args.join(" ")} failed.`, {
+      hint: result.stderr.trim() || result.stdout.trim() || "Git returned a non-zero exit code.",
+    })
   }
 
   return result
