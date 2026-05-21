@@ -359,14 +359,14 @@ Acceptance:
 
 ### Slice 2.4: Cleanup Safety
 
-- [ ] Remove stopped/completed task worktrees only through explicit cleanup.
-- [ ] Never remove source repo paths.
-- [ ] Refuse cleanup for running tasks unless forced later.
+- [x] Remove stopped/completed task worktrees only through explicit cleanup.
+- [x] Never remove source repo paths.
+- [x] Refuse cleanup for running tasks unless forced later.
 
 Acceptance:
 
-- [ ] Cleanup only touches Orchestra-owned worktree paths.
-- [ ] Running tasks are protected.
+- [x] Cleanup only touches Orchestra-owned worktree paths.
+- [x] Running tasks are protected.
 
 ## Phase 3: Agent Adapter System
 
@@ -819,3 +819,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 2 Slice 2.1 with git repo discovery for root, branch, HEAD commit, remotes, and typed non-git errors covered by temporary repo tests.
 - 2026-05-22: Completed Phase 2 Slice 2.2 with task worktree creation, sibling worktree paths, branch creation from HEAD, existing-path safety, and source repo cleanliness tests.
 - 2026-05-22: Completed Phase 2 Slice 2.3 with changed-file listing, unified diffs including untracked text files, on-demand `diff.patch` writing, and clear empty-diff output.
+- 2026-05-22: Completed Phase 2 Slice 2.4 with cleanup safety for stopped/completed/merged worktrees, running-task protection, source repo path protection, and dirty-worktree preservation.
