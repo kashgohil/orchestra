@@ -1,3 +1,5 @@
 export * from "./errors"
+export * from "./names"
+export * from "./paths"
 export * from "./task-status"
 export * from "./types"
