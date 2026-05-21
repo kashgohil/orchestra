@@ -1,11 +1,10 @@
-import { randomUUID } from "node:crypto"
-
 import {
   appendTaskEventLog,
   appendTaskOutput,
   getTaskArtifactManifest,
   initializeTaskArtifacts,
 } from "../core/artifact-service"
+import { createTaskEvent } from "../core/task-events"
 import type { AgentLaunchCommand, JsonObject, Task, TaskEvent, TaskId, TaskStatus } from "../core/types"
 import { runTmuxCommand, type TmuxCommandExecutor } from "./command"
 import { assertManagedTmuxSessionName } from "./session"
@@ -138,23 +137,4 @@ export function buildTaskSessionScript(task: Task, launchCommand: AgentLaunchCom
     )}`,
     "exit $exit_code",
   ].join("\n")
-}
-
-function createTaskEvent(input: {
-  readonly task: Task
-  readonly type: TaskEvent["type"]
-  readonly level: TaskEvent["level"]
-  readonly message: string
-  readonly data?: JsonObject
-  readonly now: () => Date
-}): TaskEvent {
-  return {
-    id: `event-${randomUUID()}`,
-    taskId: input.task.id,
-    type: input.type,
-    level: input.level,
-    message: input.message,
-    ...(input.data === undefined ? {} : { data: input.data }),
-    createdAt: input.now().toISOString(),
-  }
 }

@@ -459,16 +459,16 @@ Acceptance:
 
 ### Slice 4.3: Attach and Stop
 
-- [ ] Implement `orchestra attach <task-id>`.
-- [ ] Implement `orchestra stop <task-id>`.
-- [ ] Kill only the managed tmux session for that task.
-- [ ] Mark stopped tasks as `stopped`.
-- [ ] Write stop event.
+- [x] Implement `orchestra attach <task-id>`.
+- [x] Implement `orchestra stop <task-id>`.
+- [x] Kill only the managed tmux session for that task.
+- [x] Mark stopped tasks as `stopped`.
+- [x] Write stop event.
 
 Acceptance:
 
-- [ ] Attach opens the correct task session.
-- [ ] Stop does not affect unrelated tmux sessions.
+- [x] Attach opens the correct task session.
+- [x] Stop does not affect unrelated tmux sessions.
 
 ### Slice 4.4: Session Reconciliation
 
@@ -828,3 +828,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 3 review; checks pass, README status reflects Phase 3, and stale `.gitkeep` files were removed from populated agent/config directories.
 - 2026-05-22: Completed Phase 4 Slice 4.1 with tmux detection, managed session naming, session listing, alive checks, and injectable executor tests.
 - 2026-05-22: Completed Phase 4 Slice 4.2 with managed tmux session startup, bash launch wrappers, stdout/stderr log capture, starting/running status updates, and task start/failure event logging.
+- 2026-05-22: Completed Phase 4 Slice 4.3 with attach command construction, selected-session attach, idempotent stop handling, stopped status updates, and stop event logging.
