@@ -570,15 +570,15 @@ Acceptance:
 
 ### Slice 6.3: Explicit Push
 
-- [ ] Implement `orchestra merge <task-id> --push`.
-- [ ] Push to configured remote.
-- [ ] Use configured branch behavior.
-- [ ] Record push result in task events.
+- [x] Implement `orchestra merge <task-id> --push`.
+- [x] Push to configured remote.
+- [x] Use configured branch behavior.
+- [x] Record push result in task events.
 
 Acceptance:
 
-- [ ] Push only happens when explicitly requested.
-- [ ] Failed push keeps the local commit intact and reports recovery steps.
+- [x] Push only happens when explicitly requested.
+- [x] Failed push keeps the local commit intact and reports recovery steps.
 
 ## Phase 7: OpenTUI Command Center
 
@@ -848,3 +848,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 5 review; checks pass, README/help status reflect the CLI workflow, and a stale orchestrator import was removed.
 - 2026-05-22: Completed Phase 6 Slice 6.1 with merge precondition checks for task/source/worktree existence, active-task safety, non-empty diffs, dirty source detection, and Orchestra state filtering.
 - 2026-05-22: Completed Phase 6 Slice 6.2 with tracked patch application, untracked file copy, local merge commits, merged task status/events, and preservation of task worktrees/artifacts without pushing.
+- 2026-05-22: Completed Phase 6 Slice 6.3 with explicit `merge --push`, configured remote/source-branch push behavior, push events, and failed-push recovery that preserves the local merge commit.

@@ -157,12 +157,10 @@ export function runContinueCommand(args: ParsedArgs, context: OrchestraRuntimeCo
 
 export function runMergeCommand(args: ParsedArgs, context: OrchestraRuntimeContext = {}): string {
   const taskId = requirePositional(args, 0, "task ID")
-
-  if (hasFlag(args, "push")) {
-    throw new OrchestraError("CONFIG_INVALID", "`orchestra merge --push` is not implemented yet.")
-  }
-
-  const result = mergeTask(taskId, context)
+  const result = mergeTask(taskId, {
+    ...context,
+    push: hasFlag(args, "push"),
+  })
 
   return [
     "Merged task.",
@@ -170,6 +168,8 @@ export function runMergeCommand(args: ParsedArgs, context: OrchestraRuntimeConte
     `Status: ${result.task.status}`,
     `Commit: ${result.commitSha}`,
     `Pushed: ${result.pushed ? "yes" : "no"}`,
+    ...(result.remote === undefined ? [] : [`Remote: ${result.remote}`]),
+    ...(result.branch === undefined ? [] : [`Branch: ${result.branch}`]),
   ].join("\n")
 }
 

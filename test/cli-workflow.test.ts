@@ -355,6 +355,117 @@ describe("CLI workflow", () => {
     expect(mergeOutput.join("\n")).toContain("Pushed: no")
     expect(existsSync(task.worktreePath)).toBe(true)
   })
+
+  test("merge --push pushes only when explicitly requested", async () => {
+    const repoRoot = createGitRepo()
+    const bareRemote = path.join(createTempDir("orchestra-cli-remote-"), "origin.git")
+    const homeDir = createTempDir("orchestra-cli-home-")
+    const tmuxExecutor = recordingTmuxExecutor(0)
+    const mergeOutput: string[] = []
+
+    runGit(["init", "--bare", bareRemote], repoRoot)
+    runGit(["remote", "add", "origin", bareRemote], repoRoot)
+    runGit(["push", "-u", "origin", "main"], repoRoot)
+
+    expect(
+      await runCli(["run", "Push", "task", "--agent", "codex", "--token", "push"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: () => undefined,
+      }),
+    ).toBe(0)
+
+    const taskId = "task-20260522-100000-push"
+    const firstStore = openRepoStore(repoRoot)
+    const task = firstStore.requireTask(taskId)
+    firstStore.close()
+
+    writeFileSync(path.join(task.worktreePath, "pushed.txt"), "pushed\n", "utf8")
+
+    expect(
+      await runCli(["stop", taskId], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: () => undefined,
+      }),
+    ).toBe(0)
+    expect(
+      await runCli(["merge", taskId, "--push"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        stdout: (message) => mergeOutput.push(message),
+      }),
+    ).toBe(0)
+
+    const secondStore = openRepoStore(repoRoot)
+    const events = secondStore.listTaskEvents(taskId)
+    secondStore.close()
+
+    expect(mergeOutput.join("\n")).toContain("Pushed: yes")
+    expect(mergeOutput.join("\n")).toContain("Remote: origin")
+    expect(mergeOutput.join("\n")).toContain("Branch: main")
+    expect(runGitText(["--git-dir", bareRemote, "show", "main:pushed.txt"], repoRoot)).toBe("pushed")
+    expect(events.map((event) => event.type)).toContain("task.pushed")
+  })
+
+  test("failed merge --push keeps the local merge commit intact", async () => {
+    const repoRoot = createGitRepo()
+    const homeDir = createTempDir("orchestra-cli-home-")
+    const tmuxExecutor = recordingTmuxExecutor(0)
+    const stderr: string[] = []
+
+    expect(
+      await runCli(["run", "Failed", "push", "--agent", "codex", "--token", "failpush"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: () => undefined,
+      }),
+    ).toBe(0)
+
+    const taskId = "task-20260522-100000-failpush"
+    const firstStore = openRepoStore(repoRoot)
+    const task = firstStore.requireTask(taskId)
+    firstStore.close()
+
+    writeFileSync(path.join(task.worktreePath, "local-only.txt"), "local\n", "utf8")
+
+    expect(
+      await runCli(["stop", taskId], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: () => undefined,
+      }),
+    ).toBe(0)
+    expect(
+      await runCli(["merge", taskId, "--push"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        stdout: () => undefined,
+        stderr: (message) => stderr.push(message),
+      }),
+    ).toBe(1)
+
+    const secondStore = openRepoStore(repoRoot)
+    const mergedTask = secondStore.requireTask(taskId)
+    const eventTypes = secondStore.listTaskEvents(taskId).map((event) => event.type)
+    secondStore.close()
+
+    expect(stderr.join("\n")).toContain("PUSH_FAILED")
+    expect(mergedTask.status).toBe("merged")
+    expect(runGitText(["show", "HEAD:local-only.txt"], repoRoot)).toBe("local")
+    expect(eventTypes).toContain("task.merged")
+    expect(eventTypes).not.toContain("task.pushed")
+  })
 })
 
 function fixedClock(): () => Date {

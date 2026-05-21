@@ -23,6 +23,19 @@ export interface ApplyTaskChangesResult {
   readonly patchPath: AbsolutePath
 }
 
+export interface PushTaskCommitInput {
+  readonly remote: string
+  readonly branch?: string
+}
+
+export interface PushTaskCommitResult {
+  readonly remote: string
+  readonly branch: string
+  readonly commitSha: string
+  readonly stdout: string
+  readonly stderr: string
+}
+
 export function assertTaskMergePreconditions(task: Task): MergePreconditionResult {
   assertTaskIsMergeable(task)
   assertSourceRepoExists(task.sourceRepoPath)
@@ -82,6 +95,29 @@ export function formatTaskMergeCommitMessage(task: Task): string {
   const summary = createTaskSlug(task.prompt, 72)
 
   return `orchestra: merge ${task.id} ${summary}`
+}
+
+export function pushTaskCommit(task: Task, input: PushTaskCommitInput): PushTaskCommitResult {
+  const branch = resolvePushBranch(task, input.branch)
+  const commitSha = runGitText(["rev-parse", "HEAD"], { cwd: task.sourceRepoPath })
+  const result = runGitCommand(["push", input.remote, `HEAD:${branch}`], {
+    cwd: task.sourceRepoPath,
+    allowFailure: true,
+  })
+
+  if (result.exitCode !== 0) {
+    throw new OrchestraError("PUSH_FAILED", `Could not push task '${task.id}' to ${input.remote}/${branch}.`, {
+      hint: result.stderr.trim() || result.stdout.trim() || "Git push failed. The local merge commit is intact.",
+    })
+  }
+
+  return {
+    remote: input.remote,
+    branch,
+    commitSha,
+    stdout: result.stdout,
+    stderr: result.stderr,
+  }
 }
 
 export function assertTaskIsMergeable(task: Task): void {
@@ -260,6 +296,24 @@ function safeJoin(rootPath: AbsolutePath, relativePath: string): AbsolutePath {
   }
 
   return resolvedPath
+}
+
+function resolvePushBranch(task: Task, branch: string | undefined): string {
+  const targetBranch = branch ?? task.sourceBranch
+
+  if (targetBranch !== "HEAD") {
+    return targetBranch
+  }
+
+  const currentBranch = discoverGitRepo(task.sourceRepoPath).currentBranch
+
+  if (currentBranch === "HEAD") {
+    throw new OrchestraError("PUSH_FAILED", "Cannot push from detached HEAD.", {
+      hint: "Check out a named branch before pushing.",
+    })
+  }
+
+  return currentBranch
 }
 
 export function isOrchestraInternalPath(changedPath: string): boolean {
