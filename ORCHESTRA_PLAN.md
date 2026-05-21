@@ -401,18 +401,18 @@ Acceptance:
 
 ### Slice 3.3: Launch Commands
 
-- [ ] Implement Codex launch builder.
-- [ ] Implement Claude launch builder.
-- [ ] Implement Cursor Agent launch builder.
-- [ ] Implement Antigravity launch builder.
-- [ ] Implement Gemini launch builder.
-- [ ] Implement OpenCode launch builder.
-- [ ] Make exact command templates configurable.
+- [x] Implement Codex launch builder.
+- [x] Implement Claude launch builder.
+- [x] Implement Cursor Agent launch builder.
+- [x] Implement Antigravity launch builder.
+- [x] Implement Gemini launch builder.
+- [x] Implement OpenCode launch builder.
+- [x] Make exact command templates configurable.
 
 Acceptance:
 
-- [ ] Each adapter can produce a tmux-ready command.
-- [ ] Prompt text is passed safely.
+- [x] Each adapter can produce a tmux-ready command.
+- [x] Prompt text is passed safely.
 
 ### Slice 3.4: Prompt Envelopes
 
@@ -823,3 +823,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 2 review; checks pass, README status reflects Phase 2, git command failures use typed errors, and stale `.gitkeep` was removed from the populated git directory.
 - 2026-05-22: Completed Phase 3 Slice 3.1 with config loading, adapter construction, detection contracts, launch command rendering, TTY metadata, and configurable command overrides.
 - 2026-05-22: Completed Phase 3 Slice 3.2 with built-in Codex, Claude, Cursor, Antigravity, Gemini, and OpenCode detection plus the `orchestra agents` command.
+- 2026-05-22: Completed Phase 3 Slice 3.3 with built-in launch templates, registry launch lookup, exact config overrides, and prompt-as-argument safety tests.
