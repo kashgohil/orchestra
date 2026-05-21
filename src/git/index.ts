@@ -1,3 +1,4 @@
 export * from "./command"
+export * from "./diff"
 export * from "./repo"
 export * from "./worktree"
