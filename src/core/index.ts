@@ -1,3 +1,4 @@
+export * from "./artifact-service"
 export * from "./errors"
 export * from "./names"
 export * from "./paths"
