@@ -9,8 +9,10 @@ import { runStatusCommand } from "./status"
 import {
   runAttachCommand,
   runCleanupCommand,
+  runContinueCommand,
   runDiffCommand,
   runLogsCommand,
+  runReviewCommand,
   runStopCommand,
   runTaskCommand,
 } from "./tasks"
@@ -123,6 +125,16 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
 
     if (command === "cleanup") {
       stdout(runCleanupCommand(args, runtimeContext))
+      return 0
+    }
+
+    if (command === "review") {
+      stdout(runReviewCommand(args, runtimeContext))
+      return 0
+    }
+
+    if (command === "continue") {
+      stdout(runContinueCommand(args, runtimeContext))
       return 0
     }
   } catch (error) {

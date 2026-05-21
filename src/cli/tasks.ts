@@ -4,6 +4,8 @@ import {
   getTaskDiff,
   getTaskLogs,
   OrchestraError,
+  startContinueTask,
+  startReviewTask,
   startRunTask,
   stopTask,
   type CleanupTaskResult,
@@ -117,10 +119,58 @@ export function runCleanupCommand(args: ParsedArgs, context: OrchestraRuntimeCon
   ])
 }
 
+export function runReviewCommand(args: ParsedArgs, context: OrchestraRuntimeContext = {}): string {
+  const parentTaskId = requirePositional(args, 0, "task ID")
+  const agentId = readFlag(args, "agent")
+  const taskIdToken = readFlag(args, "token")
+  const result = startReviewTask({
+    ...context,
+    parentTaskId,
+    ...(agentId === undefined ? {} : { agentId }),
+    ...(taskIdToken === undefined ? {} : { taskIdToken }),
+  })
+
+  return formatStartedChildTask("Started review task.", result)
+}
+
+export function runContinueCommand(args: ParsedArgs, context: OrchestraRuntimeContext = {}): string {
+  const parentTaskId = requirePositional(args, 0, "task ID")
+  const instruction = args.positionals.slice(1).join(" ").trim()
+  const agentId = readFlag(args, "agent")
+  const taskIdToken = readFlag(args, "token")
+
+  if (instruction.length === 0) {
+    throw new OrchestraError("CONFIG_INVALID", "Missing required continuation instruction.")
+  }
+
+  const result = startContinueTask({
+    ...context,
+    parentTaskId,
+    instruction,
+    ...(agentId === undefined ? {} : { agentId }),
+    ...(taskIdToken === undefined ? {} : { taskIdToken }),
+  })
+
+  return formatStartedChildTask("Started continue task.", result)
+}
+
 function formatCleanupState(result: CleanupTaskResult): string {
   if (result.removed) {
     return "removed"
   }
 
   return result.reason === undefined ? "skipped" : `skipped: ${result.reason}`
+}
+
+function formatStartedChildTask(label: string, result: { readonly task: { readonly id: string; readonly status: string; readonly agentId: string; readonly parentTaskId?: string; readonly worktreePath: string; readonly artifactPath: string }; readonly sessionName: string }): string {
+  return [
+    label,
+    `Task: ${result.task.id}`,
+    ...(result.task.parentTaskId === undefined ? [] : [`Parent: ${result.task.parentTaskId}`]),
+    `Status: ${result.task.status}`,
+    `Agent: ${result.task.agentId}`,
+    `Session: ${result.sessionName}`,
+    `Worktree: ${result.task.worktreePath}`,
+    `Artifacts: ${result.task.artifactPath}`,
+  ].join("\n")
 }

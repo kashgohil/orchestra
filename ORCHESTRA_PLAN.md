@@ -529,14 +529,14 @@ Acceptance:
 
 ### Slice 5.4: `review` and `continue`
 
-- [ ] Implement `orchestra review <task-id> --agent <agent>`.
-- [ ] Implement `orchestra continue <task-id> "<instruction>" --agent <agent>`.
-- [ ] Link review tasks to parent tasks.
-- [ ] Continue in the existing task worktree.
+- [x] Implement `orchestra review <task-id> --agent <agent>`.
+- [x] Implement `orchestra continue <task-id> "<instruction>" --agent <agent>`.
+- [x] Link review tasks to parent tasks.
+- [x] Continue in the existing task worktree.
 
 Acceptance:
 
-- [ ] Multi-agent review/continue loop works without TUI.
+- [x] Multi-agent review/continue loop works without TUI.
 
 ## Phase 6: Merge, Commit, and Push
 
@@ -844,3 +844,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 5 Slice 5.1 with `init`, `agents --json`, `status`, status reconciliation, repo/global store registration, and table/JSON output.
 - 2026-05-22: Completed Phase 5 Slice 5.2 with `run`, `logs`, and `diff`, including task worktree creation, task/artifact persistence, tmux launch, event logs, stdout/stderr access, and diff patch writing.
 - 2026-05-22: Completed Phase 5 Slice 5.3 with `attach`, `stop`, and `cleanup`, including interactive attach support, persisted stopped status, managed-session kill safety, and active-worktree cleanup skips.
+- 2026-05-22: Completed Phase 5 Slice 5.4 with `review` and `continue`, linked child tasks, parent-worktree reuse, review/continue prompt context, and tmux launch coverage.

@@ -57,6 +57,17 @@ export interface StartRunTaskInput extends OrchestraRuntimeContext {
   readonly agentId?: AgentId
 }
 
+export interface StartReviewTaskInput extends OrchestraRuntimeContext {
+  readonly parentTaskId: TaskId
+  readonly agentId?: AgentId
+}
+
+export interface StartContinueTaskInput extends OrchestraRuntimeContext {
+  readonly parentTaskId: TaskId
+  readonly instruction: string
+  readonly agentId?: AgentId
+}
+
 export interface StartTaskResult {
   readonly task: Task
   readonly sessionName: string
@@ -282,6 +293,34 @@ export function getTaskDiff(taskId: TaskId, context: OrchestraRuntimeContext = {
   }
 }
 
+export function startReviewTask(input: StartReviewTaskInput): StartTaskResult {
+  return startChildTask({
+    ...input,
+    kind: "review",
+    buildPrompt: (parentTask) => `Review ${parentTask.id}: ${parentTask.prompt}`,
+    buildInstruction: (parentTask) =>
+      [
+        `Review task ${parentTask.id}.`,
+        "Inspect the current worktree diff and write findings to REVIEW.md.",
+        "Do not implement changes unless the user explicitly asks for implementation.",
+      ].join("\n"),
+  })
+}
+
+export function startContinueTask(input: StartContinueTaskInput): StartTaskResult {
+  return startChildTask({
+    ...input,
+    kind: "continue",
+    buildPrompt: () => input.instruction,
+    buildInstruction: (parentTask) =>
+      [
+        `Continue task ${parentTask.id}.`,
+        input.instruction,
+        "Work in the existing task worktree and update RESULT.md with what changed.",
+      ].join("\n"),
+  })
+}
+
 export function attachToTask(taskId: TaskId, context: OrchestraRuntimeContext = {}): AttachTaskResult {
   const repoInfo = discoverGitRepo(context.cwd)
   const repoStore = openRepoStore(repoInfo.rootPath)
@@ -482,4 +521,98 @@ function persistCreatedTask(input: {
 
   input.repoStore.appendTaskEvent(event)
   appendTaskEventLog(input.task, event)
+}
+
+function startChildTask(input: (StartReviewTaskInput | StartContinueTaskInput) & {
+  readonly kind: "review" | "continue"
+  readonly buildPrompt: (parentTask: Task) => string
+  readonly buildInstruction: (parentTask: Task) => string
+}): StartTaskResult {
+  const repoInfo = discoverGitRepo(input.cwd)
+  const loadedConfig = loadOrchestraConfig(repoInfo.rootPath)
+  const repoStore = openRepoStore(repoInfo.rootPath)
+  const globalStore = openGlobalIndexStore(input.homeDir === undefined ? {} : { homeDir: input.homeDir })
+
+  try {
+    const repo = registerRepo({
+      repoInfo,
+      globalStore,
+      ...(input.now === undefined ? {} : { now: input.now }),
+    })
+    const parentTask = repoStore.requireTask(input.parentTaskId)
+    const agentId = input.agentId ?? loadedConfig.config.defaultAgent ?? DEFAULT_ORCHESTRA_CONFIG.defaultAgent
+    const task = buildTaskRecord({
+      kind: input.kind,
+      agentId,
+      prompt: input.buildPrompt(parentTask),
+      repoInfo,
+      repoId: repo.id,
+      parentTaskId: parentTask.id,
+      baseCommit: parentTask.baseCommit,
+      taskBranch: parentTask.taskBranch,
+      worktreePath: parentTask.worktreePath,
+      ...(input.taskIdToken === undefined ? {} : { token: input.taskIdToken }),
+      ...(input.now === undefined ? {} : { now: input.now }),
+    })
+
+    persistCreatedTask({
+      task,
+      repoStore,
+      ...(input.now === undefined ? {} : { now: input.now }),
+    })
+
+    const prompt = buildAgentPromptEnvelopeById({
+      agentId,
+      task,
+      instruction: input.buildInstruction(parentTask),
+      context: {
+        parentTask: {
+          id: parentTask.id,
+          kind: parentTask.kind,
+          agentId: parentTask.agentId,
+          status: parentTask.status,
+          prompt: parentTask.prompt,
+          worktreePath: parentTask.worktreePath,
+          artifactPath: parentTask.artifactPath,
+        },
+        currentDiff: tailText(formatWorktreeDiff(parentTask.worktreePath), 12000),
+        recentStdout: tailText(readTaskOutput(parentTask, "stdout"), 4000),
+        recentStderr: tailText(readTaskOutput(parentTask, "stderr"), 4000),
+      },
+    })
+    const launchCommand = buildAgentLaunchCommandById({
+      agentId,
+      task,
+      prompt,
+      config: loadedConfig.config,
+    })
+
+    try {
+      return startTaskSession({
+        task,
+        launchCommand,
+        store: repoStore,
+        ...(input.tmuxExecutor === undefined ? {} : { executor: input.tmuxExecutor }),
+        ...(input.now === undefined ? {} : { now: input.now }),
+      })
+    } finally {
+      updateRepoTaskSummary({
+        repoId: repo.id,
+        tasks: repoStore.listTasks(),
+        globalStore,
+        ...(input.now === undefined ? {} : { now: input.now }),
+      })
+    }
+  } finally {
+    repoStore.close()
+    globalStore.close()
+  }
+}
+
+function tailText(value: string, maxLength: number): string {
+  if (value.length <= maxLength) {
+    return value
+  }
+
+  return value.slice(value.length - maxLength)
 }

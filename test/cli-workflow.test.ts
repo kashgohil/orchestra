@@ -226,6 +226,80 @@ describe("CLI workflow", () => {
     expect(cleanupAfterOutput.join("\n")).toContain("removed")
     expect(existsSync(task.worktreePath)).toBe(false)
   })
+
+  test("review and continue create linked child tasks in the parent worktree", async () => {
+    const repoRoot = createGitRepo()
+    const homeDir = createTempDir("orchestra-cli-home-")
+    const tmuxExecutor = recordingTmuxExecutor(0)
+    const reviewOutput: string[] = []
+    const continueOutput: string[] = []
+
+    expect(
+      await runCli(["run", "Parent", "task", "--agent", "codex", "--token", "parent"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: () => undefined,
+      }),
+    ).toBe(0)
+
+    const parentTaskId = "task-20260522-100000-parent"
+    const firstStore = openRepoStore(repoRoot)
+    const parentTask = firstStore.requireTask(parentTaskId)
+    firstStore.close()
+
+    writeFileSync(path.join(parentTask.worktreePath, "review-target.txt"), "needs review\n", "utf8")
+
+    expect(
+      await runCli(["review", parentTaskId, "--agent", "claude", "--token", "review"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: (message) => reviewOutput.push(message),
+      }),
+    ).toBe(0)
+    expect(
+      await runCli(
+        ["continue", parentTaskId, "address", "the", "review", "--agent", "codex", "--token", "cont"],
+        {
+          cwd: repoRoot,
+          homeDir,
+          now: fixedClock(),
+          tmuxExecutor,
+          stdout: (message) => continueOutput.push(message),
+        },
+      ),
+    ).toBe(0)
+
+    const secondStore = openRepoStore(repoRoot)
+    const reviewTask = secondStore.requireTask("task-20260522-100000-review")
+    const continueTask = secondStore.requireTask("task-20260522-100000-cont")
+    secondStore.close()
+
+    expect(reviewOutput.join("\n")).toContain("Started review task.")
+    expect(continueOutput.join("\n")).toContain("Started continue task.")
+    expect(reviewTask).toMatchObject({
+      kind: "review",
+      parentTaskId,
+      agentId: "claude",
+      worktreePath: parentTask.worktreePath,
+      taskBranch: parentTask.taskBranch,
+      status: "running",
+    })
+    expect(continueTask).toMatchObject({
+      kind: "continue",
+      parentTaskId,
+      agentId: "codex",
+      prompt: "address the review",
+      worktreePath: parentTask.worktreePath,
+      taskBranch: parentTask.taskBranch,
+      status: "running",
+    })
+    expect(tmuxExecutor.calls.filter((call) => call[0] === "new-session")).toHaveLength(3)
+    expect(tmuxExecutor.calls.some((call) => call.join("\n").includes("review-target.txt"))).toBe(true)
+  })
 })
 
 function fixedClock(): () => Date {
