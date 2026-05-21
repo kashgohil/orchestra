@@ -111,11 +111,13 @@ export interface AgentCommandOverride {
   readonly command: string
   readonly args?: readonly string[]
   readonly env?: Readonly<Record<string, string>>
+  readonly appendPrompt?: boolean
 }
 
 export interface AgentDetectionContext {
   readonly env: Readonly<Record<string, string | undefined>>
   readonly commandOverride?: AgentCommandOverride
+  readonly commandResolver?: (command: string) => string | undefined
 }
 
 export interface AgentDetectionResult {

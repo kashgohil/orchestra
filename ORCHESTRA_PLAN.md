@@ -374,15 +374,15 @@ Goal: support named local coding CLIs through consistent adapters.
 
 ### Slice 3.1: Adapter Interface
 
-- [ ] Define adapter detection behavior.
-- [ ] Define launch command model.
-- [ ] Define prompt envelope behavior.
-- [ ] Define `requiresTty`.
-- [ ] Define config override behavior.
+- [x] Define adapter detection behavior.
+- [x] Define launch command model.
+- [x] Define prompt envelope behavior.
+- [x] Define `requiresTty`.
+- [x] Define config override behavior.
 
 Acceptance:
 
-- [ ] Adapter unit tests can build commands without the binaries installed.
+- [x] Adapter unit tests can build commands without the binaries installed.
 
 ### Slice 3.2: Agent Detection
 
@@ -821,3 +821,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 2 Slice 2.3 with changed-file listing, unified diffs including untracked text files, on-demand `diff.patch` writing, and clear empty-diff output.
 - 2026-05-22: Completed Phase 2 Slice 2.4 with cleanup safety for stopped/completed/merged worktrees, running-task protection, source repo path protection, and dirty-worktree preservation.
 - 2026-05-22: Completed Phase 2 review; checks pass, README status reflects Phase 2, git command failures use typed errors, and stale `.gitkeep` was removed from the populated git directory.
+- 2026-05-22: Completed Phase 3 Slice 3.1 with config loading, adapter construction, detection contracts, launch command rendering, TTY metadata, and configurable command overrides.
