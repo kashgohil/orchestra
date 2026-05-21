@@ -506,14 +506,14 @@ Acceptance:
 
 ### Slice 5.2: `run`, `logs`, `diff`
 
-- [ ] Implement `orchestra run "<prompt>" --agent <agent>`.
-- [ ] Implement `orchestra logs <task-id>`.
-- [ ] Implement `orchestra diff <task-id>`.
-- [ ] Persist all task metadata and artifacts.
+- [x] Implement `orchestra run "<prompt>" --agent <agent>`.
+- [x] Implement `orchestra logs <task-id>`.
+- [x] Implement `orchestra diff <task-id>`.
+- [x] Persist all task metadata and artifacts.
 
 Acceptance:
 
-- [ ] A task can be launched and inspected without TUI.
+- [x] A task can be launched and inspected without TUI.
 
 ### Slice 5.3: `attach`, `stop`, `cleanup`
 
@@ -842,3 +842,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 4 review; checks pass, README status reflects Phase 4, the tmux architecture sketch matches implemented modules, and the stale tmux `.gitkeep` was removed.
 - 2026-05-22: Recorded the Phase 7 requirement to load and follow the local `opentui` skill before implementing the TUI.
 - 2026-05-22: Completed Phase 5 Slice 5.1 with `init`, `agents --json`, `status`, status reconciliation, repo/global store registration, and table/JSON output.
+- 2026-05-22: Completed Phase 5 Slice 5.2 with `run`, `logs`, and `diff`, including task worktree creation, task/artifact persistence, tmux launch, event logs, stdout/stderr access, and diff patch writing.

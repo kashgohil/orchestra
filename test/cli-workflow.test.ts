@@ -1,4 +1,12 @@
-import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs"
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs"
 import { tmpdir } from "node:os"
 import path from "node:path"
 import { afterEach, describe, expect, test } from "bun:test"
@@ -10,6 +18,7 @@ import {
   getRepoId,
   getRepoStorePath,
   getTaskArtifactDir,
+  getTaskArtifactManifest,
   getTaskWorktreePath,
   type Task,
 } from "../src/core"
@@ -97,6 +106,56 @@ describe("CLI workflow", () => {
     expect(reports.find((report) => report.id === "codex")?.available).toBe(true)
     expect(reports.find((report) => report.id === "opencode")?.available).toBe(false)
   })
+
+  test("run launches a managed task and logs and diff inspect it", async () => {
+    const repoRoot = createGitRepo()
+    const homeDir = createTempDir("orchestra-cli-home-")
+    const runOutput: string[] = []
+    const logsOutput: string[] = []
+    const diffOutput: string[] = []
+    const tmuxExecutor = recordingTmuxExecutor(0)
+
+    expect(
+      await runCli(["run", "Fix", "auth", "bug", "--agent", "codex", "--token", "launch"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: (message) => runOutput.push(message),
+      }),
+    ).toBe(0)
+
+    const taskId = "task-20260522-100000-launch"
+    const store = openRepoStore(repoRoot)
+    const task = store.requireTask(taskId)
+    const events = store.listTaskEvents(taskId)
+    store.close()
+
+    expect(task.status).toBe("running")
+    expect(task.prompt).toBe("Fix auth bug")
+    expect(existsSync(task.worktreePath)).toBe(true)
+    expect(runOutput.join("\n")).toContain(taskId)
+    expect(tmuxExecutor.calls[0]?.slice(0, 4)).toEqual(["new-session", "-d", "-s", task.tmuxSessionName])
+    expect(events.map((event) => event.type)).toEqual(["task.created", "task.started"])
+
+    expect(
+      await runCli(["logs", taskId], {
+        cwd: repoRoot,
+        stdout: (message) => logsOutput.push(message),
+      }),
+    ).toBe(0)
+    expect(logsOutput.join("\n")).toContain("started tmux session")
+
+    writeFileSync(path.join(task.worktreePath, "new-file.txt"), "hello\n", "utf8")
+    expect(
+      await runCli(["diff", taskId], {
+        cwd: repoRoot,
+        stdout: (message) => diffOutput.push(message),
+      }),
+    ).toBe(0)
+    expect(diffOutput.join("\n")).toContain("new-file.txt")
+    expect(existsSync(getTaskArtifactManifest(task).files.diff)).toBe(true)
+  })
 })
 
 function fixedClock(): () => Date {
@@ -135,6 +194,23 @@ function emptyTmuxExecutor() {
   }
 }
 
+function recordingTmuxExecutor(exitCode: number) {
+  const calls: (readonly string[])[] = []
+
+  return {
+    calls,
+    run(args: readonly string[]) {
+      calls.push(args)
+
+      return {
+        exitCode,
+        stdout: "",
+        stderr: exitCode === 0 ? "" : "tmux failed",
+      }
+    },
+  }
+}
+
 function createTempDir(prefix: string): string {
   const tempRoot = mkdtempSync(path.join(tmpdir(), prefix))
   const realTempRoot = realpathSync(tempRoot)
@@ -144,7 +220,10 @@ function createTempDir(prefix: string): string {
 }
 
 function createGitRepo(): string {
-  const repoRoot = createTempDir("orchestra-cli-repo-")
+  const tempRoot = createTempDir("orchestra-cli-repo-")
+  const repoRoot = path.join(tempRoot, "repo")
+
+  mkdirSync(repoRoot)
 
   runGit(["init", "--initial-branch=main"], repoRoot)
   runGit(["config", "user.name", "Orchestra Test"], repoRoot)

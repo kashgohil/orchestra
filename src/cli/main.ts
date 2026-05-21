@@ -6,6 +6,7 @@ import { parseArgs, hasFlag } from "./args"
 import { formatCliError } from "./errors"
 import { runInitCommand } from "./init"
 import { runStatusCommand } from "./status"
+import { runDiffCommand, runLogsCommand, runTaskCommand } from "./tasks"
 import type { CommandResolver } from "../agents"
 import type { TmuxCommandExecutor } from "../tmux"
 
@@ -85,6 +86,21 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
           json: hasFlag(args, "json"),
         }),
       )
+      return 0
+    }
+
+    if (command === "run") {
+      stdout(runTaskCommand(args, runtimeContext))
+      return 0
+    }
+
+    if (command === "logs") {
+      stdout(runLogsCommand(args, runtimeContext))
+      return 0
+    }
+
+    if (command === "diff") {
+      stdout(runDiffCommand(args, runtimeContext))
       return 0
     }
   } catch (error) {
