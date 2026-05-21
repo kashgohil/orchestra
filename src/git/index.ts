@@ -1,3 +1,4 @@
+export * from "./cleanup"
 export * from "./command"
 export * from "./diff"
 export * from "./repo"
