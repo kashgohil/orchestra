@@ -4,11 +4,21 @@ import path from "node:path"
 import { buildAgentLaunchCommandById, buildAgentPromptEnvelopeById } from "../agents"
 import { loadOrchestraConfig, ORCHESTRA_CONFIG_FILE, type OrchestraConfig } from "../config"
 import { formatWorktreeDiff, writeTaskDiffPatch } from "../git/diff"
+import { canCleanupTaskWorktree, cleanupTaskWorktree } from "../git/cleanup"
 import { discoverGitRepo, type GitRepoInfo } from "../git/repo"
 import { createTaskWorktreeFromTask } from "../git/worktree"
 import { openGlobalIndexStore, type KnownRepoRecord } from "../store/global-index-store"
 import { openRepoStore } from "../store/repo-store"
-import { reconcileTaskSessions, startTaskSession, type TmuxCommandExecutor } from "../tmux"
+import {
+  attachTaskSession,
+  getAttachTaskSessionCommand,
+  interactiveTmuxCommandExecutor,
+  reconcileTaskSessions,
+  startTaskSession,
+  stopTaskSession,
+  type StopTaskSessionResult,
+  type TmuxCommandExecutor,
+} from "../tmux"
 import {
   appendTaskEventLog,
   initializeTaskArtifacts,
@@ -64,6 +74,18 @@ export interface TaskDiffResult {
   readonly task: Task
   readonly diff: string
   readonly patchPath: AbsolutePath
+}
+
+export interface AttachTaskResult {
+  readonly task: Task
+  readonly command: readonly string[]
+}
+
+export interface CleanupTaskResult {
+  readonly task: Task
+  readonly removed: boolean
+  readonly worktreePath: AbsolutePath
+  readonly reason?: string
 }
 
 export const DEFAULT_ORCHESTRA_CONFIG = {
@@ -255,6 +277,82 @@ export function getTaskDiff(taskId: TaskId, context: OrchestraRuntimeContext = {
       patchPath,
       diff: formatWorktreeDiff(task.worktreePath),
     }
+  } finally {
+    repoStore.close()
+  }
+}
+
+export function attachToTask(taskId: TaskId, context: OrchestraRuntimeContext = {}): AttachTaskResult {
+  const repoInfo = discoverGitRepo(context.cwd)
+  const repoStore = openRepoStore(repoInfo.rootPath)
+
+  try {
+    const task = repoStore.requireTask(taskId)
+    const command = getAttachTaskSessionCommand(task)
+
+    attachTaskSession(task, context.tmuxExecutor ?? interactiveTmuxCommandExecutor)
+
+    return {
+      task,
+      command,
+    }
+  } finally {
+    repoStore.close()
+  }
+}
+
+export function stopTask(taskId: TaskId, context: OrchestraRuntimeContext = {}): StopTaskSessionResult {
+  const repoInfo = discoverGitRepo(context.cwd)
+  const repoStore = openRepoStore(repoInfo.rootPath)
+  const globalStore = openGlobalIndexStore(context.homeDir === undefined ? {} : { homeDir: context.homeDir })
+
+  try {
+    const repo = registerRepo({
+      repoInfo,
+      globalStore,
+      ...(context.now === undefined ? {} : { now: context.now }),
+    })
+    const result = stopTaskSession({
+      task: repoStore.requireTask(taskId),
+      store: repoStore,
+      ...(context.tmuxExecutor === undefined ? {} : { executor: context.tmuxExecutor }),
+      ...(context.now === undefined ? {} : { now: context.now }),
+    })
+
+    updateRepoTaskSummary({
+      repoId: repo.id,
+      tasks: repoStore.listTasks(),
+      globalStore,
+      ...(context.now === undefined ? {} : { now: context.now }),
+    })
+
+    return result
+  } finally {
+    repoStore.close()
+    globalStore.close()
+  }
+}
+
+export function cleanupTasks(context: OrchestraRuntimeContext = {}): readonly CleanupTaskResult[] {
+  const repoInfo = discoverGitRepo(context.cwd)
+  const repoStore = openRepoStore(repoInfo.rootPath)
+
+  try {
+    return repoStore.listTasks().map((task) => {
+      if (!canCleanupTaskWorktree(task.status)) {
+        return {
+          task,
+          removed: false,
+          worktreePath: task.worktreePath,
+          reason: `Task status '${task.status}' is still active.`,
+        }
+      }
+
+      return {
+        task,
+        ...cleanupTaskWorktree(task),
+      }
+    })
   } finally {
     repoStore.close()
   }

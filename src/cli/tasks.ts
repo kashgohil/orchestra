@@ -1,5 +1,16 @@
-import { getTaskDiff, getTaskLogs, OrchestraError, startRunTask, type OrchestraRuntimeContext } from "../core"
+import {
+  attachToTask,
+  cleanupTasks,
+  getTaskDiff,
+  getTaskLogs,
+  OrchestraError,
+  startRunTask,
+  stopTask,
+  type CleanupTaskResult,
+  type OrchestraRuntimeContext,
+} from "../core"
 import { hasFlag, readFlag, requirePositional, type ParsedArgs } from "./args"
+import { formatTable } from "./table"
 
 export function runTaskCommand(args: ParsedArgs, context: OrchestraRuntimeContext = {}): string {
   const prompt = args.positionals.join(" ").trim()
@@ -54,4 +65,62 @@ export function runDiffCommand(args: ParsedArgs, context: OrchestraRuntimeContex
   const taskId = requirePositional(args, 0, "task ID")
 
   return getTaskDiff(taskId, context).diff.replace(/\n$/g, "")
+}
+
+export function runAttachCommand(args: ParsedArgs, context: OrchestraRuntimeContext = {}): string {
+  const taskId = requirePositional(args, 0, "task ID")
+  const result = attachToTask(taskId, context)
+
+  return [`Attached to task ${result.task.id}.`, `Command: ${result.command.join(" ")}`].join("\n")
+}
+
+export function runStopCommand(args: ParsedArgs, context: OrchestraRuntimeContext = {}): string {
+  const taskId = requirePositional(args, 0, "task ID")
+  const result = stopTask(taskId, context)
+
+  return [
+    result.killed ? "Stopped task session." : "Marked task stopped.",
+    `Task: ${result.task.id}`,
+    `Status: ${result.task.status}`,
+    `Session: ${result.sessionName}`,
+  ].join("\n")
+}
+
+export function runCleanupCommand(args: ParsedArgs, context: OrchestraRuntimeContext = {}): string {
+  const results = cleanupTasks(context)
+
+  if (hasFlag(args, "json")) {
+    return JSON.stringify(results, null, 2)
+  }
+
+  if (results.length === 0) {
+    return "No tasks found."
+  }
+
+  return formatTable(results, [
+    {
+      header: "task",
+      value: (result) => result.task.id,
+    },
+    {
+      header: "status",
+      value: (result) => result.task.status,
+    },
+    {
+      header: "cleanup",
+      value: formatCleanupState,
+    },
+    {
+      header: "worktree",
+      value: (result) => result.worktreePath,
+    },
+  ])
+}
+
+function formatCleanupState(result: CleanupTaskResult): string {
+  if (result.removed) {
+    return "removed"
+  }
+
+  return result.reason === undefined ? "skipped" : `skipped: ${result.reason}`
 }

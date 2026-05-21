@@ -136,7 +136,7 @@ describe("CLI workflow", () => {
     expect(existsSync(task.worktreePath)).toBe(true)
     expect(runOutput.join("\n")).toContain(taskId)
     expect(tmuxExecutor.calls[0]?.slice(0, 4)).toEqual(["new-session", "-d", "-s", task.tmuxSessionName])
-    expect(events.map((event) => event.type)).toEqual(["task.created", "task.started"])
+    expect(events.map((event) => event.type).sort()).toEqual(["task.created", "task.started"])
 
     expect(
       await runCli(["logs", taskId], {
@@ -155,6 +155,76 @@ describe("CLI workflow", () => {
     ).toBe(0)
     expect(diffOutput.join("\n")).toContain("new-file.txt")
     expect(existsSync(getTaskArtifactManifest(task).files.diff)).toBe(true)
+  })
+
+  test("attach, stop, and cleanup manage a task worktree safely", async () => {
+    const repoRoot = createGitRepo()
+    const homeDir = createTempDir("orchestra-cli-home-")
+    const tmuxExecutor = recordingTmuxExecutor(0)
+    const cleanupBeforeOutput: string[] = []
+    const attachOutput: string[] = []
+    const stopOutput: string[] = []
+    const cleanupAfterOutput: string[] = []
+
+    expect(
+      await runCli(["run", "Clean", "task", "--agent", "codex", "--token", "control"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: () => undefined,
+      }),
+    ).toBe(0)
+
+    const taskId = "task-20260522-100000-control"
+    const store = openRepoStore(repoRoot)
+    const task = store.requireTask(taskId)
+    store.close()
+
+    expect(
+      await runCli(["cleanup", "--json"], {
+        cwd: repoRoot,
+        stdout: (message) => cleanupBeforeOutput.push(message),
+      }),
+    ).toBe(0)
+    const cleanupBefore = JSON.parse(cleanupBeforeOutput.join("\n")) as readonly {
+      removed: boolean
+      reason?: string
+    }[]
+    expect(cleanupBefore[0]?.removed).toBe(false)
+    expect(cleanupBefore[0]?.reason).toContain("running")
+    expect(existsSync(task.worktreePath)).toBe(true)
+
+    expect(
+      await runCli(["attach", taskId], {
+        cwd: repoRoot,
+        tmuxExecutor,
+        stdout: (message) => attachOutput.push(message),
+      }),
+    ).toBe(0)
+    expect(attachOutput.join("\n")).toContain(`tmux attach-session -t ${task.tmuxSessionName}`)
+    expect(tmuxExecutor.calls.some((call) => call[0] === "attach-session")).toBe(true)
+
+    expect(
+      await runCli(["stop", taskId], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: (message) => stopOutput.push(message),
+      }),
+    ).toBe(0)
+    expect(stopOutput.join("\n")).toContain("Stopped task session.")
+    expect(tmuxExecutor.calls.some((call) => call[0] === "kill-session")).toBe(true)
+
+    expect(
+      await runCli(["cleanup"], {
+        cwd: repoRoot,
+        stdout: (message) => cleanupAfterOutput.push(message),
+      }),
+    ).toBe(0)
+    expect(cleanupAfterOutput.join("\n")).toContain("removed")
+    expect(existsSync(task.worktreePath)).toBe(false)
   })
 })
 

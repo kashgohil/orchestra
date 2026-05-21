@@ -6,7 +6,14 @@ import { parseArgs, hasFlag } from "./args"
 import { formatCliError } from "./errors"
 import { runInitCommand } from "./init"
 import { runStatusCommand } from "./status"
-import { runDiffCommand, runLogsCommand, runTaskCommand } from "./tasks"
+import {
+  runAttachCommand,
+  runCleanupCommand,
+  runDiffCommand,
+  runLogsCommand,
+  runStopCommand,
+  runTaskCommand,
+} from "./tasks"
 import type { CommandResolver } from "../agents"
 import type { TmuxCommandExecutor } from "../tmux"
 
@@ -101,6 +108,21 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
 
     if (command === "diff") {
       stdout(runDiffCommand(args, runtimeContext))
+      return 0
+    }
+
+    if (command === "attach") {
+      stdout(runAttachCommand(args, runtimeContext))
+      return 0
+    }
+
+    if (command === "stop") {
+      stdout(runStopCommand(args, runtimeContext))
+      return 0
+    }
+
+    if (command === "cleanup") {
+      stdout(runCleanupCommand(args, runtimeContext))
       return 0
     }
   } catch (error) {

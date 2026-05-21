@@ -517,15 +517,15 @@ Acceptance:
 
 ### Slice 5.3: `attach`, `stop`, `cleanup`
 
-- [ ] Implement `orchestra attach <task-id>`.
-- [ ] Implement `orchestra stop <task-id>`.
-- [ ] Implement `orchestra cleanup`.
-- [ ] Add clear confirmations or safety checks where needed.
+- [x] Implement `orchestra attach <task-id>`.
+- [x] Implement `orchestra stop <task-id>`.
+- [x] Implement `orchestra cleanup`.
+- [x] Add clear confirmations or safety checks where needed.
 
 Acceptance:
 
-- [ ] A user can attach to and stop a task cleanly.
-- [ ] Cleanup does not remove active work.
+- [x] A user can attach to and stop a task cleanly.
+- [x] Cleanup does not remove active work.
 
 ### Slice 5.4: `review` and `continue`
 
@@ -843,3 +843,4 @@ Acceptance:
 - 2026-05-22: Recorded the Phase 7 requirement to load and follow the local `opentui` skill before implementing the TUI.
 - 2026-05-22: Completed Phase 5 Slice 5.1 with `init`, `agents --json`, `status`, status reconciliation, repo/global store registration, and table/JSON output.
 - 2026-05-22: Completed Phase 5 Slice 5.2 with `run`, `logs`, and `diff`, including task worktree creation, task/artifact persistence, tmux launch, event logs, stdout/stderr access, and diff patch writing.
+- 2026-05-22: Completed Phase 5 Slice 5.3 with `attach`, `stop`, and `cleanup`, including interactive attach support, persisted stopped status, managed-session kill safety, and active-worktree cleanup skips.

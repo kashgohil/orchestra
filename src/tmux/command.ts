@@ -27,6 +27,23 @@ export const bunTmuxCommandExecutor: TmuxCommandExecutor = {
   },
 }
 
+export const interactiveTmuxCommandExecutor: TmuxCommandExecutor = {
+  run(args: readonly string[]): TmuxCommandResult {
+    const subprocess = Bun.spawnSync({
+      cmd: ["tmux", ...args],
+      stdin: "inherit",
+      stdout: "inherit",
+      stderr: "inherit",
+    })
+
+    return {
+      exitCode: subprocess.exitCode,
+      stdout: "",
+      stderr: "",
+    }
+  },
+}
+
 export function runTmuxCommand(
   args: readonly string[],
   executor: TmuxCommandExecutor = bunTmuxCommandExecutor,
