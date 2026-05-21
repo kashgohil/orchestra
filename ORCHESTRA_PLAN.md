@@ -96,8 +96,12 @@ src/
     diff.ts
     merge.ts
   tmux/
-    tmux.ts
+    command.ts
+    control.ts
+    reconcile.ts
+    runner.ts
     session.ts
+    shell.ts
   store/
     global-store.ts
     repo-store.ts
@@ -830,3 +834,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 4 Slice 4.2 with managed tmux session startup, bash launch wrappers, stdout/stderr log capture, starting/running status updates, and task start/failure event logging.
 - 2026-05-22: Completed Phase 4 Slice 4.3 with attach command construction, selected-session attach, idempotent stop handling, stopped status updates, and stop event logging.
 - 2026-05-22: Completed Phase 4 Slice 4.4 with session reconciliation for running/starting tasks, missing-session failure marking, conservative completed/merged preservation, and event/artifact logging.
+- 2026-05-22: Completed Phase 4 review; checks pass, README status reflects Phase 4, the tmux architecture sketch matches implemented modules, and the stale tmux `.gitkeep` was removed.

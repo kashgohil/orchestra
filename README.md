@@ -112,10 +112,11 @@ Completed:
 - Task artifact service for `TASK.md`, logs, events, and agent-editable files.
 - Git repo discovery, worktree creation, diff helpers, and cleanup safety.
 - Agent adapter framework, detection, launch templates, and prompt envelopes.
+- Managed tmux session model, runner, attach/stop controls, and reconciliation.
 
 Next:
 
-- tmux runner.
+- CLI workflow commands.
 - OpenTUI command center.
 
 See [ORCHESTRA_PLAN.md](./ORCHESTRA_PLAN.md) for the full phased implementation plan.
