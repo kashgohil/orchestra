@@ -21,4 +21,26 @@ describe("CLI scaffold", () => {
   test("runCli returns non-zero for unknown commands", async () => {
     expect(await runCli(["nope"])).toBe(1)
   })
+
+  test("bare command and tui alias launch the TUI", async () => {
+    const launched: string[] = []
+
+    expect(
+      await runCli([], {
+        cwd: "/tmp/repo",
+        tuiLauncher: (options) => {
+          launched.push(options.cwd ?? "")
+        },
+      }),
+    ).toBe(0)
+    expect(
+      await runCli(["tui"], {
+        cwd: "/tmp/repo",
+        tuiLauncher: (options) => {
+          launched.push(options.cwd ?? "")
+        },
+      }),
+    ).toBe(0)
+    expect(launched).toEqual(["/tmp/repo", "/tmp/repo"])
+  })
 })

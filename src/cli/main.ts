@@ -19,6 +19,7 @@ import {
 } from "./tasks"
 import type { CommandResolver } from "../agents"
 import type { TmuxCommandExecutor } from "../tmux"
+import type { RunTuiOptions } from "../tui"
 
 export interface CliOptions {
   readonly cwd?: string
@@ -26,6 +27,7 @@ export interface CliOptions {
   readonly now?: () => Date
   readonly tmuxExecutor?: TmuxCommandExecutor
   readonly commandResolver?: CommandResolver
+  readonly tuiLauncher?: (options: RunTuiOptions) => Promise<void> | void
   readonly stdout?: (message: string) => void
   readonly stderr?: (message: string) => void
 }
@@ -54,7 +56,12 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
   const stdout = options.stdout ?? console.log
   const stderr = options.stderr ?? console.error
 
-  if (!command || HELP_FLAGS.has(command)) {
+  if (!command) {
+    await launchTui(options)
+    return 0
+  }
+
+  if (HELP_FLAGS.has(command)) {
     stdout(formatHelp())
     return 0
   }
@@ -71,6 +78,19 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
       ...(options.homeDir === undefined ? {} : { homeDir: options.homeDir }),
       ...(options.now === undefined ? {} : { now: options.now }),
       ...(options.tmuxExecutor === undefined ? {} : { tmuxExecutor: options.tmuxExecutor }),
+    }
+    const tuiContext = {
+      ...(options.cwd === undefined ? {} : { cwd: options.cwd }),
+      ...(options.homeDir === undefined ? {} : { homeDir: options.homeDir }),
+      ...(options.now === undefined ? {} : { now: options.now }),
+    }
+
+    if (command === "tui") {
+      await launchTui({
+        ...options,
+        ...tuiContext,
+      })
+      return 0
     }
 
     if (command === "init") {
@@ -155,6 +175,23 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
     ].join("\n"),
   )
   return 0
+}
+
+async function launchTui(options: CliOptions & RunTuiOptions): Promise<void> {
+  const tuiOptions = {
+    ...(options.cwd === undefined ? {} : { cwd: options.cwd }),
+    ...(options.homeDir === undefined ? {} : { homeDir: options.homeDir }),
+    ...(options.now === undefined ? {} : { now: options.now }),
+  }
+
+  if (options.tuiLauncher !== undefined) {
+    await options.tuiLauncher(tuiOptions)
+    return
+  }
+
+  const { runTui } = await import("../tui")
+
+  await runTui(tuiOptions)
 }
 
 if (import.meta.main) {

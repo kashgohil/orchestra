@@ -11,10 +11,16 @@
     "dev": "bun run src/cli/main.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "build": "bun build src/cli/main.ts --target=bun --outfile=dist/orchestra.js"
+    "build": "bun build src/cli/main.ts --target=bun --outdir=dist --entry-naming=orchestra.js"
   },
   "devDependencies": {
+    "@types/react": "^19.2.15",
     "bun-types": "^1.3.0",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@opentui/core": "^0.2.15",
+    "@opentui/react": "^0.2.15",
+    "react": "^19.2.6"
   }
 }

@@ -2,7 +2,9 @@
   "compilerOptions": {
     "allowImportingTsExtensions": true,
     "exactOptionalPropertyTypes": true,
-    "lib": ["ESNext"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "@opentui/react",
+    "lib": ["ESNext", "DOM"],
     "module": "Preserve",
     "moduleDetection": "force",
     "moduleResolution": "Bundler",
