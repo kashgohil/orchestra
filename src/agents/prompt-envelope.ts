@@ -73,6 +73,7 @@ function artifactInstructions(task: Task): readonly string[] {
   if (task.kind === "review") {
     return [
       "- Write review findings and recommendations to `REVIEW.md`.",
+      "- Use the supplied original prompt, current diff, recent logs, and test/lint output when available.",
       "- Do not implement changes during review unless explicitly instructed.",
     ]
   }
@@ -80,6 +81,7 @@ function artifactInstructions(task: Task): readonly string[] {
   if (task.kind === "continue") {
     return [
       "- Update `RESULT.md` with what changed during this continuation.",
+      "- Use the supplied original prompt, current diff, and continuation instruction as the source of truth.",
       "- If review notes exist, address them directly and preserve useful context.",
     ]
   }

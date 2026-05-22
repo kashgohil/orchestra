@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync } from "node:fs"
+import { existsSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
 import { buildAgentLaunchCommandById, buildAgentPromptEnvelopeById } from "../agents"
@@ -23,6 +23,7 @@ import {
 } from "../tmux"
 import {
   appendTaskEventLog,
+  getTaskArtifactManifest,
   initializeTaskArtifacts,
   readTaskOutput,
 } from "./artifact-service"
@@ -30,7 +31,7 @@ import { createRepoSlug, createTaskBranchName, createTaskId, createTmuxSessionNa
 import { getRepoStorePath, getTaskArtifactDir, getTaskWorktreePath } from "./paths"
 import { createTaskEvent } from "./task-events"
 import { isActiveTaskStatus } from "./task-status"
-import type { AbsolutePath, AgentId, Task, TaskEvent, TaskId, TaskKind } from "./types"
+import type { AbsolutePath, AgentId, JsonObject, JsonValue, Task, TaskEvent, TaskId, TaskKind } from "./types"
 
 export interface OrchestraRuntimeContext {
   readonly cwd?: AbsolutePath
@@ -315,7 +316,9 @@ export function startReviewTask(input: StartReviewTaskInput): StartTaskResult {
     buildInstruction: (parentTask) =>
       [
         `Review task ${parentTask.id}.`,
-        "Inspect the current worktree diff and write findings to REVIEW.md.",
+        `Original task prompt: ${parentTask.prompt}`,
+        "Inspect the supplied current diff, recent logs, and test/lint output when present.",
+        "Write findings and recommendations to REVIEW.md.",
         "Do not implement changes unless the user explicitly asks for implementation.",
       ].join("\n"),
   })
@@ -329,7 +332,9 @@ export function startContinueTask(input: StartContinueTaskInput): StartTaskResul
     buildInstruction: (parentTask) =>
       [
         `Continue task ${parentTask.id}.`,
+        `Original task prompt: ${parentTask.prompt}`,
         input.instruction,
+        "Use supplied review notes when present.",
         "Work in the existing task worktree and update RESULT.md with what changed.",
       ].join("\n"),
   })
@@ -671,6 +676,7 @@ function startChildTask(input: (StartReviewTaskInput | StartContinueTaskInput) &
       ...(input.now === undefined ? {} : { now: input.now }),
     })
     const parentTask = repoStore.requireTask(input.parentTaskId)
+    const existingTasks = repoStore.listTasks()
     const agentId = input.agentId ?? loadedConfig.config.defaultAgent ?? DEFAULT_ORCHESTRA_CONFIG.defaultAgent
     const task = buildTaskRecord({
       kind: input.kind,
@@ -696,20 +702,7 @@ function startChildTask(input: (StartReviewTaskInput | StartContinueTaskInput) &
       agentId,
       task,
       instruction: input.buildInstruction(parentTask),
-      context: {
-        parentTask: {
-          id: parentTask.id,
-          kind: parentTask.kind,
-          agentId: parentTask.agentId,
-          status: parentTask.status,
-          prompt: parentTask.prompt,
-          worktreePath: parentTask.worktreePath,
-          artifactPath: parentTask.artifactPath,
-        },
-        currentDiff: tailText(formatWorktreeDiff(parentTask.worktreePath), 12000),
-        recentStdout: tailText(readTaskOutput(parentTask, "stdout"), 4000),
-        recentStderr: tailText(readTaskOutput(parentTask, "stderr"), 4000),
-      },
+      context: buildChildTaskPromptContext(parentTask, existingTasks),
     })
     const launchCommand = buildAgentLaunchCommandById({
       agentId,
@@ -746,4 +739,100 @@ function tailText(value: string, maxLength: number): string {
   }
 
   return value.slice(value.length - maxLength)
+}
+
+function buildChildTaskPromptContext(parentTask: Task, existingTasks: readonly Task[]): JsonObject {
+  const parentArtifacts = getTaskArtifactManifest(parentTask)
+  const stdout = readTaskOutput(parentTask, "stdout")
+  const stderr = readTaskOutput(parentTask, "stderr")
+  const combinedOutput = [stdout, stderr].filter((output) => output.length > 0).join("\n")
+  const context: Record<string, JsonValue> = {
+    parentTask: {
+      id: parentTask.id,
+      kind: parentTask.kind,
+      agentId: parentTask.agentId,
+      status: parentTask.status,
+      originalPrompt: parentTask.prompt,
+      prompt: parentTask.prompt,
+      worktreePath: parentTask.worktreePath,
+      artifactPath: parentTask.artifactPath,
+    },
+    parentArtifacts: {
+      task: parentArtifacts.files.task,
+      plan: parentArtifacts.files.plan,
+      result: parentArtifacts.files.result,
+      review: parentArtifacts.files.review,
+      eventLog: parentArtifacts.files["event-log"],
+      stdout: parentArtifacts.files.stdout,
+      stderr: parentArtifacts.files.stderr,
+      diff: parentArtifacts.files.diff,
+    },
+    currentDiff: tailText(formatWorktreeDiff(parentTask.worktreePath), 12000),
+    recentStdout: tailText(stdout, 4000),
+    recentStderr: tailText(stderr, 4000),
+  }
+  const testOutput = extractRecentCommandOutput(combinedOutput, TEST_OUTPUT_PATTERNS)
+  const lintOutput = extractRecentCommandOutput(combinedOutput, LINT_OUTPUT_PATTERNS)
+  const reviewNotes = readRelatedReviewNotes(parentTask, existingTasks)
+
+  if (testOutput.length > 0) {
+    context.testOutput = testOutput
+  }
+
+  if (lintOutput.length > 0) {
+    context.lintOutput = lintOutput
+  }
+
+  if (reviewNotes.length > 0) {
+    context.reviewNotes = reviewNotes
+  }
+
+  return context
+}
+
+const TEST_OUTPUT_PATTERNS = [
+  /\b(bun|npm|pnpm|yarn)\s+(run\s+)?test\b/i,
+  /\b(vitest|jest|pytest|go test|cargo test|rspec)\b/i,
+  /\btests?\s+(pass|passed|fail|failed|failing)\b/i,
+] as const
+
+const LINT_OUTPUT_PATTERNS = [
+  /\b(bun|npm|pnpm|yarn)\s+(run\s+)?lint\b/i,
+  /\b(eslint|biome|ruff|clippy)\b/i,
+  /\b(typecheck|tsc --noEmit)\b/i,
+  /\blint\s+(pass|passed|fail|failed|failing)\b/i,
+] as const
+
+function extractRecentCommandOutput(value: string, patterns: readonly RegExp[]): string {
+  const lines = value.replace(/\n$/g, "").split("\n")
+  const startIndex = lines.findLastIndex((line) => patterns.some((pattern) => pattern.test(line)))
+
+  if (startIndex === -1) {
+    return ""
+  }
+
+  return tailText(lines.slice(startIndex).join("\n"), 4000)
+}
+
+function readRelatedReviewNotes(parentTask: Task, existingTasks: readonly Task[]): string {
+  const parentReviewNotes = readArtifactText(getTaskArtifactManifest(parentTask).files.review)
+  const childReviewNotes = existingTasks
+    .filter((task) => task.parentTaskId === parentTask.id && task.kind === "review")
+    .map((task) => {
+      const notes = readArtifactText(getTaskArtifactManifest(task).files.review)
+
+      return notes.length === 0 ? "" : `## ${task.id}\n${notes}`
+    })
+    .filter((notes) => notes.length > 0)
+  const allNotes = [parentReviewNotes, ...childReviewNotes].filter((notes) => notes.length > 0).join("\n\n")
+
+  return tailText(allNotes, 8000)
+}
+
+function readArtifactText(filePath: AbsolutePath): string {
+  if (!existsSync(filePath)) {
+    return ""
+  }
+
+  return readFileSync(filePath, "utf8").trim()
 }

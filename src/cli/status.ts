@@ -25,6 +25,14 @@ export function runStatusCommand(options: StatusCommandOptions = {}): string {
         value: (task) => task.id,
       },
       {
+        header: "parent",
+        value: (task) => task.parentTaskId ?? "-",
+      },
+      {
+        header: "children",
+        value: (task) => formatChildTaskIds(task, result.tasks),
+      },
+      {
         header: "status",
         value: (task) => task.status,
       },
@@ -46,4 +54,10 @@ export function runStatusCommand(options: StatusCommandOptions = {}): string {
       },
     ]),
   ].join("\n")
+}
+
+function formatChildTaskIds(task: Task, tasks: readonly Task[]): string {
+  const childTaskIds = tasks.filter((candidate) => candidate.parentTaskId === task.id).map((child) => child.id)
+
+  return childTaskIds.length === 0 ? "-" : truncate(childTaskIds.join(","), 48)
 }

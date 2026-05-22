@@ -43,6 +43,7 @@ describe("agent prompt envelopes", () => {
     expect(prompt).toContain("Task kind: review")
     expect(prompt).toContain("Parent task: task-parent")
     expect(prompt).toContain("Write review findings and recommendations to `REVIEW.md`.")
+    expect(prompt).toContain("current diff, recent logs, and test/lint output")
     expect(prompt).toContain('"diffPath": "/tmp/diff.patch"')
   })
 
@@ -60,6 +61,7 @@ describe("agent prompt envelopes", () => {
     expect(prompt).toContain("Task kind: continue")
     expect(prompt).toContain("Parent task: task-parent")
     expect(prompt).toContain("Address the review comments.")
+    expect(prompt).toContain("current diff, and continuation instruction")
     expect(prompt).toContain("If review notes exist, address them directly")
     expect(prompt).toContain('"reviewPath": "/tmp/REVIEW.md"')
   })

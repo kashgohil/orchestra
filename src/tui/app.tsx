@@ -322,7 +322,12 @@ function TaskDetailPanel(props: {
       ) : detail === undefined ? (
         <EmptyDashboard />
       ) : (
-        <TaskDetail detail={detail} viewMode={props.viewMode} compact={props.compact} />
+        <TaskDetail
+          detail={detail}
+          tasks={props.state.tasks}
+          viewMode={props.viewMode}
+          compact={props.compact}
+        />
       )}
     </box>
   )
@@ -341,6 +346,7 @@ function EmptyDashboard() {
 
 function TaskDetail(props: {
   readonly detail: NonNullable<TuiState["detail"]>
+  readonly tasks: readonly Task[]
   readonly viewMode: TuiViewMode
   readonly compact: boolean
 }) {
@@ -353,6 +359,7 @@ function TaskDetail(props: {
       <text fg={COLORS.muted}>{truncateMiddle(task.prompt, 120)}</text>
       <text fg={COLORS.muted}>{truncateMiddle(`branch ${task.taskBranch}`, 120)}</text>
       <text fg={COLORS.muted}>{truncateMiddle(`worktree ${task.worktreePath}`, 120)}</text>
+      <TaskRelationships task={task} tasks={props.tasks} />
       {props.detail.error === undefined ? null : <text fg={COLORS.error}>{props.detail.error}</text>}
       <ChangedFiles files={props.detail.changedFiles} />
       {props.viewMode === "logs" ? (
@@ -361,6 +368,31 @@ function TaskDetail(props: {
         <DiffSummary files={props.detail.changedFiles} />
       ) : (
         <Events events={props.detail.events} />
+      )}
+    </box>
+  )
+}
+
+function TaskRelationships(props: { readonly task: Task; readonly tasks: readonly Task[] }) {
+  const children = props.tasks.filter((task) => task.parentTaskId === props.task.id)
+
+  if (props.task.parentTaskId === undefined && children.length === 0) {
+    return null
+  }
+
+  return (
+    <box flexDirection="column">
+      <text fg={COLORS.muted}>Relationships</text>
+      {props.task.parentTaskId === undefined ? null : (
+        <text fg={COLORS.text}>{`parent ${props.task.parentTaskId}`}</text>
+      )}
+      {children.length === 0 ? null : (
+        <text fg={COLORS.text}>
+          {truncateMiddle(
+            `children ${children.map((child) => `${child.id}:${child.kind}:${child.status}`).join(", ")}`,
+            120,
+          )}
+        </text>
       )}
     </box>
   )

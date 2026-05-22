@@ -233,6 +233,7 @@ describe("CLI workflow", () => {
     const tmuxExecutor = recordingTmuxExecutor(0)
     const reviewOutput: string[] = []
     const continueOutput: string[] = []
+    const statusOutput: string[] = []
 
     expect(
       await runCli(["run", "Parent", "task", "--agent", "codex", "--token", "parent"], {
@@ -250,6 +251,16 @@ describe("CLI workflow", () => {
     firstStore.close()
 
     writeFileSync(path.join(parentTask.worktreePath, "review-target.txt"), "needs review\n", "utf8")
+    writeFileSync(
+      getTaskArtifactManifest(parentTask).files.stdout,
+      "bun test\n1 failing test in auth.test.ts\n",
+      "utf8",
+    )
+    writeFileSync(
+      getTaskArtifactManifest(parentTask).files.stderr,
+      "bun run lint\nlint failed in auth.ts\n",
+      "utf8",
+    )
 
     expect(
       await runCli(["review", parentTaskId, "--agent", "claude", "--token", "review"], {
@@ -260,6 +271,16 @@ describe("CLI workflow", () => {
         stdout: (message) => reviewOutput.push(message),
       }),
     ).toBe(0)
+
+    const reviewStore = openRepoStore(repoRoot)
+    const reviewTaskBeforeContinue = reviewStore.requireTask("task-20260522-100000-review")
+    reviewStore.close()
+    writeFileSync(
+      getTaskArtifactManifest(reviewTaskBeforeContinue).files.review,
+      "Finding: handle the missing auth token branch.\n",
+      "utf8",
+    )
+
     expect(
       await runCli(
         ["continue", parentTaskId, "address", "the", "review", "--agent", "codex", "--token", "cont"],
@@ -299,6 +320,27 @@ describe("CLI workflow", () => {
     })
     expect(tmuxExecutor.calls.filter((call) => call[0] === "new-session")).toHaveLength(3)
     expect(tmuxExecutor.calls.some((call) => call.join("\n").includes("review-target.txt"))).toBe(true)
+    expect(tmuxExecutor.calls.some((call) => call.join("\n").includes("originalPrompt"))).toBe(true)
+    expect(tmuxExecutor.calls.some((call) => call.join("\n").includes("1 failing test in auth.test.ts"))).toBe(true)
+    expect(tmuxExecutor.calls.some((call) => call.join("\n").includes("lint failed in auth.ts"))).toBe(true)
+    expect(
+      tmuxExecutor.calls.some((call) =>
+        call.join("\n").includes("Finding: handle the missing auth token branch."),
+      ),
+    ).toBe(true)
+
+    expect(
+      await runCli(["status"], {
+        cwd: repoRoot,
+        homeDir,
+        now: fixedClock(),
+        tmuxExecutor,
+        stdout: (message) => statusOutput.push(message),
+      }),
+    ).toBe(0)
+    expect(statusOutput.join("\n")).toContain("parent")
+    expect(statusOutput.join("\n")).toContain("children")
+    expect(statusOutput.join("\n")).toContain(parentTaskId)
   })
 
   test("merge applies task changes and creates a local commit without pushing", async () => {
