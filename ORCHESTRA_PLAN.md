@@ -859,3 +859,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 8 Slice 8.1 with deterministic slash command parsing, including `/run <agent> ...` shorthand and merge push aliases.
 - 2026-05-22: Completed Phase 8 Slice 8.2 with documented natural commands for run, review, continue, diff, logs, attach, stop, merge, and merge-and-push.
 - 2026-05-22: Completed Phase 8 Slice 8.3 with parsed-action confirmation messages for stop, merge, and merge-and-push before execution.
+- 2026-05-22: Completed Phase 8 review; checks pass, README/help status reflect natural commands, and unknown TUI commands now show examples instead of guessing.
