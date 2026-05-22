@@ -869,3 +869,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 10 Slice 10.3 with troubleshooting for missing tmux, missing agents, worktree creation failures, stuck sessions, dirty repo merge failures, and failed push recovery.
 - 2026-05-22: Completed Phase 10 Slice 10.4 with full typecheck, full test suite, build, built-CLI help smoke, temporary-repo CLI smoke, and OpenTUI renderer/parser smoke for the TUI flow.
 - 2026-05-22: v1 status: local CLI/TUI orchestration is usable end to end for init, doctor, agent detection, task run/status/log/diff/attach/stop/cleanup, review/continue, merge, explicit push, and troubleshooting on a local git repo.
+- 2026-05-22: Completed Phase 10 review; checks pass, docs cover setup and recovery, and v1 is recorded as complete for local-machine orchestration.
