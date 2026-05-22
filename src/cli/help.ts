@@ -35,7 +35,7 @@ export function formatHelp(): string {
     ...commandLines,
     "",
     "Current status:",
-    "  CLI workflow, OpenTUI command center, merge, commit, and explicit push are available. Doctor remains planned.",
+    "  CLI workflow, OpenTUI command center, natural TUI commands, merge, commit, and explicit push are available. Doctor remains planned.",
     "",
     "Examples:",
     '  orchestra run "fix failing auth tests" --agent codex',

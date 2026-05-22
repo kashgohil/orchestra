@@ -664,48 +664,48 @@ Goal: let the TUI accept natural commands, with slash aliases as reliable fallba
 
 ### Slice 8.1: Slash Commands
 
-- [ ] Parse `/run codex fix tests`.
-- [ ] Parse `/review task-123 --agent claude`.
-- [ ] Parse `/continue task-123 --agent codex address comments`.
-- [ ] Parse `/diff task-123`.
-- [ ] Parse `/logs task-123`.
-- [ ] Parse `/attach task-123`.
-- [ ] Parse `/stop task-123`.
-- [ ] Parse `/merge task-123`.
-- [ ] Parse `/merge task-123 --push`.
+- [x] Parse `/run codex fix tests`.
+- [x] Parse `/review task-123 --agent claude`.
+- [x] Parse `/continue task-123 --agent codex address comments`.
+- [x] Parse `/diff task-123`.
+- [x] Parse `/logs task-123`.
+- [x] Parse `/attach task-123`.
+- [x] Parse `/stop task-123`.
+- [x] Parse `/merge task-123`.
+- [x] Parse `/merge task-123 --push`.
 
 Acceptance:
 
-- [ ] Slash command parsing is deterministic and well tested.
+- [x] Slash command parsing is deterministic and well tested.
 
 ### Slice 8.2: Natural Commands
 
-- [ ] Parse `ask codex to fix failing tests`.
-- [ ] Parse `run claude review task-123`.
-- [ ] Parse `review task-123 with claude`.
-- [ ] Parse `continue task-123 with codex address the review`.
-- [ ] Parse `diff task-123`.
-- [ ] Parse `logs task-123`.
-- [ ] Parse `attach task-123`.
-- [ ] Parse `stop task-123`.
-- [ ] Parse `merge task-123`.
-- [ ] Parse `merge task-123 and push`.
+- [x] Parse `ask codex to fix failing tests`.
+- [x] Parse `run claude review task-123`.
+- [x] Parse `review task-123 with claude`.
+- [x] Parse `continue task-123 with codex address the review`.
+- [x] Parse `diff task-123`.
+- [x] Parse `logs task-123`.
+- [x] Parse `attach task-123`.
+- [x] Parse `stop task-123`.
+- [x] Parse `merge task-123`.
+- [x] Parse `merge task-123 and push`.
 
 Acceptance:
 
-- [ ] Natural parser covers the documented phrases.
-- [ ] Unknown commands show examples instead of guessing dangerously.
+- [x] Natural parser covers the documented phrases.
+- [x] Unknown commands show examples instead of guessing dangerously.
 
 ### Slice 8.3: Confirmations
 
-- [ ] Show parsed action before stop.
-- [ ] Show parsed action before merge.
-- [ ] Show parsed action before push.
-- [ ] Require explicit confirmation for destructive operations.
+- [x] Show parsed action before stop.
+- [x] Show parsed action before merge.
+- [x] Show parsed action before push.
+- [x] Require explicit confirmation for destructive operations.
 
 Acceptance:
 
-- [ ] Accidental stop/merge/push is hard to trigger.
+- [x] Accidental stop/merge/push is hard to trigger.
 
 ## Phase 9: Review and Continue Loops
 
@@ -856,3 +856,6 @@ Acceptance:
 - 2026-05-22: Completed Phase 7 Slice 7.4 with composer-driven CLI actions for run, attach, stop, diff, logs, review, continue, cleanup, merge, and confirmed merge/push.
 - 2026-05-22: Completed Phase 7 Slice 7.5 with keyboard shortcuts for open, attach, diff, logs, stop, merge, help, quit, and confirmations for destructive shortcuts.
 - 2026-05-22: Completed Phase 7 review; checks pass, README/help status reflect the TUI, current examples use implemented CLI-style slash commands, and the stale TUI `.gitkeep` was removed.
+- 2026-05-22: Completed Phase 8 Slice 8.1 with deterministic slash command parsing, including `/run <agent> ...` shorthand and merge push aliases.
+- 2026-05-22: Completed Phase 8 Slice 8.2 with documented natural commands for run, review, continue, diff, logs, attach, stop, merge, and merge-and-push.
+- 2026-05-22: Completed Phase 8 Slice 8.3 with parsed-action confirmation messages for stop, merge, and merge-and-push before execution.
