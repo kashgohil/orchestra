@@ -855,3 +855,4 @@ Acceptance:
 - 2026-05-22: Completed Phase 7 Slice 7.3 with repo/task metadata, latest events, log tails, changed files, and interval-based state refresh.
 - 2026-05-22: Completed Phase 7 Slice 7.4 with composer-driven CLI actions for run, attach, stop, diff, logs, review, continue, cleanup, merge, and confirmed merge/push.
 - 2026-05-22: Completed Phase 7 Slice 7.5 with keyboard shortcuts for open, attach, diff, logs, stop, merge, help, quit, and confirmations for destructive shortcuts.
+- 2026-05-22: Completed Phase 7 review; checks pass, README/help status reflect the TUI, current examples use implemented CLI-style slash commands, and the stale TUI `.gitkeep` was removed.
