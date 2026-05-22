@@ -11,7 +11,7 @@
     "dev": "bun run src/cli/main.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "build": "bun build src/cli/main.ts --target=bun --outdir=dist --entry-naming=orchestra.js"
+    "build": "bun build src/cli/main.ts --target=bun --outdir=dist --entry-naming=orchestra.js --external @opentui/core --external @opentui/react --external react"
   },
   "devDependencies": {
     "@types/react": "^19.2.15",
