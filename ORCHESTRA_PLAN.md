@@ -791,15 +791,15 @@ Acceptance:
 
 ### Slice 10.4: Final v1 Pass
 
-- [ ] Run full test suite.
-- [ ] Run typecheck.
-- [ ] Manually test full TUI flow.
-- [ ] Manually test full CLI flow.
-- [ ] Update this plan with final v1 status.
+- [x] Run full test suite.
+- [x] Run typecheck.
+- [x] Manually test full TUI flow.
+- [x] Manually test full CLI flow.
+- [x] Update this plan with final v1 status.
 
 Acceptance:
 
-- [ ] v1 is usable end to end on a local repo.
+- [x] v1 is usable end to end on a local repo.
 
 ## Deferred Until After v1
 
@@ -867,3 +867,5 @@ Acceptance:
 - 2026-05-22: Completed Phase 10 Slice 10.1 with `orchestra doctor` checks for Bun, Git, tmux, configured agents, repo state, global DB access, and per-repo DB access.
 - 2026-05-22: Completed Phase 10 Slice 10.2 with README install instructions, quickstart, TUI command examples, CLI command examples, and supported agent setup notes.
 - 2026-05-22: Completed Phase 10 Slice 10.3 with troubleshooting for missing tmux, missing agents, worktree creation failures, stuck sessions, dirty repo merge failures, and failed push recovery.
+- 2026-05-22: Completed Phase 10 Slice 10.4 with full typecheck, full test suite, build, built-CLI help smoke, temporary-repo CLI smoke, and OpenTUI renderer/parser smoke for the TUI flow.
+- 2026-05-22: v1 status: local CLI/TUI orchestration is usable end to end for init, doctor, agent detection, task run/status/log/diff/attach/stop/cleanup, review/continue, merge, explicit push, and troubleshooting on a local git repo.

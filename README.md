@@ -159,6 +159,8 @@ git diff
 
 ## Current Status
 
+Orchestra v1 is usable for local repo workflows.
+
 Completed:
 
 - Persistent implementation plan.
