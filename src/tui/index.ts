@@ -1,4 +1,5 @@
 export * from "./command"
+export * from "./parser"
 export * from "./run"
 export * from "./state"
 export * from "./types"

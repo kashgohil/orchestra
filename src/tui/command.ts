@@ -15,21 +15,10 @@ import {
   runTaskCommand,
 } from "../cli/tasks"
 import { OrchestraError, type TaskId } from "../core"
+import { parseComposerCommand, TUI_COMMAND_EXAMPLES } from "./parser"
 import type { TuiCommandResult, TuiRuntimeContext, TuiViewMode } from "./types"
 
 export type TuiShortcutAction = "open" | "attach" | "diff" | "logs" | "stop" | "merge"
-
-export function parseComposerCommand(input: string): readonly string[] {
-  const trimmed = input.trim()
-
-  if (trimmed.length === 0) {
-    return []
-  }
-
-  const normalized = trimmed.startsWith("/") ? trimmed.slice(1) : trimOrchestraPrefix(trimmed)
-
-  return splitCommandLine(normalized)
-}
 
 export async function executeTuiCommand(
   input: string,
@@ -118,7 +107,7 @@ async function executeCommand(
       return runMergeCommand(args, context)
     default:
       throw new OrchestraError("CONFIG_INVALID", `Unknown TUI command '${command}'.`, {
-        hint: "Use commands like `/run fix tests --agent codex`, `/logs <task-id>`, `/diff <task-id>`, `/stop <task-id>`, or `/merge <task-id>`.",
+        hint: `Try ${TUI_COMMAND_EXAMPLES.map((example) => `\`${example}\``).join(", ")}.`,
       })
   }
 }
@@ -137,62 +126,4 @@ function viewModeFor(command: string): TuiViewMode | undefined {
   }
 
   return undefined
-}
-
-function trimOrchestraPrefix(input: string): string {
-  return input.startsWith("orchestra ") ? input.slice("orchestra ".length).trimStart() : input
-}
-
-function splitCommandLine(input: string): readonly string[] {
-  const args: string[] = []
-  let current = ""
-  let quote: "'" | '"' | undefined
-  let escaped = false
-
-  for (const char of input) {
-    if (escaped) {
-      current += char
-      escaped = false
-      continue
-    }
-
-    if (char === "\\") {
-      escaped = true
-      continue
-    }
-
-    if (quote !== undefined) {
-      if (char === quote) {
-        quote = undefined
-      } else {
-        current += char
-      }
-      continue
-    }
-
-    if (char === '"' || char === "'") {
-      quote = char
-      continue
-    }
-
-    if (/\s/.test(char)) {
-      if (current.length > 0) {
-        args.push(current)
-        current = ""
-      }
-      continue
-    }
-
-    current += char
-  }
-
-  if (escaped) {
-    current += "\\"
-  }
-
-  if (current.length > 0) {
-    args.push(current)
-  }
-
-  return args
 }

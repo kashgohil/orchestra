@@ -7,9 +7,9 @@ import type { WorktreeChangedFile } from "../git"
 import {
   commandForShortcut,
   executeTuiCommand,
-  parseComposerCommand,
   type TuiShortcutAction,
 } from "./command"
+import { getTuiCommandConfirmation } from "./parser"
 import { loadTuiState, selectAdjacentTaskId } from "./state"
 import type { TuiCommandResult, TuiRuntimeContext, TuiState, TuiViewMode } from "./types"
 
@@ -81,11 +81,13 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
         return
       }
 
-      if (!confirmed && needsConfirmation(command)) {
+      const confirmation = getTuiCommandConfirmation(command)
+
+      if (!confirmed && confirmation !== undefined) {
         setPendingCommand(command)
         setLastResult({
           ok: false,
-          message: `Confirm: ${command}`,
+          message: confirmation.message,
         })
         return
       }
@@ -124,11 +126,13 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
         return
       }
 
-      if (action === "stop" || action === "merge") {
+      const confirmation = getTuiCommandConfirmation(command)
+
+      if (confirmation !== undefined) {
         setPendingCommand(command)
         setLastResult({
           ok: false,
-          message: `Confirm: ${command}`,
+          message: confirmation.message,
         })
         return
       }
@@ -284,7 +288,7 @@ function TaskList(props: {
     >
       <text fg={COLORS.muted}>Tasks</text>
       {visibleTasks.length === 0 ? (
-        <text fg={COLORS.muted}>No tasks yet. Type /run fix tests --agent codex</text>
+        <text fg={COLORS.muted}>No tasks yet. Type ask codex to fix tests</text>
       ) : (
         visibleTasks.map((task) => (
           <text key={task.id} fg={task.id === props.selectedTaskId ? COLORS.accent : COLORS.text}>
@@ -328,9 +332,9 @@ function EmptyDashboard() {
   return (
     <box flexDirection="column" gap={1}>
       <text fg={COLORS.accent}>No tasks in this repo.</text>
-      <text fg={COLORS.text}>/run fix failing tests --agent codex</text>
+      <text fg={COLORS.text}>ask codex to fix failing tests</text>
+      <text fg={COLORS.text}>/run codex fix failing tests</text>
       <text fg={COLORS.text}>/agents</text>
-      <text fg={COLORS.text}>/status</text>
     </box>
   )
 }
@@ -450,10 +454,10 @@ function HelpOverlay() {
       <text fg={COLORS.text}>enter open selected  up/down select  a attach  d diff  l logs</text>
       <text fg={COLORS.text}>s stop  m merge  ? help  q quit  esc clear/close</text>
       <text fg={COLORS.accent}>Commands</text>
-      <text fg={COLORS.text}>/run fix tests --agent codex</text>
-      <text fg={COLORS.text}>/review task-id --agent claude</text>
-      <text fg={COLORS.text}>/continue task-id address review --agent codex</text>
-      <text fg={COLORS.text}>/diff task-id  /logs task-id  /merge task-id --push</text>
+      <text fg={COLORS.text}>ask codex to fix tests   /run codex fix tests</text>
+      <text fg={COLORS.text}>review task-id with claude   /review task-id --agent claude</text>
+      <text fg={COLORS.text}>continue task-id with codex address review</text>
+      <text fg={COLORS.text}>diff task-id  logs task-id  merge task-id and push</text>
     </box>
   )
 }
@@ -464,7 +468,8 @@ function CommandComposer(props: {
   readonly latestMessage: string
   readonly ok: boolean
 }) {
-  const command = props.commandText.length === 0 ? "/run fix failing tests --agent codex" : props.commandText
+  const command =
+    props.pendingCommand ?? (props.commandText.length === 0 ? "ask codex to fix failing tests" : props.commandText)
   const prompt = props.pendingCommand === undefined ? "> " : "confirm y/n > "
 
   return (
@@ -514,12 +519,6 @@ function handleConfirmationKey(input: {
       message: "Cancelled.",
     })
   }
-}
-
-function needsConfirmation(command: string): boolean {
-  const [name] = parseComposerCommand(command)
-
-  return name === "stop" || name === "merge"
 }
 
 function shortcutForKey(name: string): TuiShortcutAction | undefined {

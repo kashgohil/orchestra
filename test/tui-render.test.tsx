@@ -40,6 +40,6 @@ describe("OpenTUI app", () => {
 
     expect(frame).toContain("Orchestra")
     expect(frame).toContain("No tasks in this repo.")
-    expect(frame).toContain("/run fix failing tests --agent codex")
+    expect(frame).toContain("ask codex to fix failing tests")
   })
 })
