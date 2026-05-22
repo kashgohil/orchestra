@@ -586,77 +586,77 @@ Goal: make `orchestra` open an OpenCode-like command interface.
 
 Implementation note:
 
-- [ ] Before editing TUI code, load the local `opentui` skill and follow its OpenTUI React, layout, keyboard, component, and testing guidance.
+- [x] Before editing TUI code, load the local `opentui` skill and follow its OpenTUI React, layout, keyboard, component, and testing guidance.
 
 ### Slice 7.1: TUI Shell
 
-- [ ] Add OpenTUI React dependencies.
-- [ ] Add TUI entrypoint.
-- [ ] Make bare `orchestra` launch TUI.
-- [ ] Add `orchestra tui` alias.
-- [ ] Render empty-state dashboard.
+- [x] Add OpenTUI React dependencies.
+- [x] Add TUI entrypoint.
+- [x] Make bare `orchestra` launch TUI.
+- [x] Add `orchestra tui` alias.
+- [x] Render empty-state dashboard.
 
 Acceptance:
 
-- [ ] TUI opens and exits cleanly.
-- [ ] TUI does not require existing tasks.
+- [x] TUI opens and exits cleanly.
+- [x] TUI does not require existing tasks.
 
 ### Slice 7.2: Layout
 
-- [ ] Left pane: repo/task list.
-- [ ] Main pane: selected task detail.
-- [ ] Bottom pane: command composer.
-- [ ] Help overlay.
-- [ ] Status bar.
+- [x] Left pane: repo/task list.
+- [x] Main pane: selected task detail.
+- [x] Bottom pane: command composer.
+- [x] Help overlay.
+- [x] Status bar.
 
 Acceptance:
 
-- [ ] Layout remains usable on typical terminal sizes.
-- [ ] Empty, loading, and error states render clearly.
+- [x] Layout remains usable on typical terminal sizes.
+- [x] Empty, loading, and error states render clearly.
 
 ### Slice 7.3: Task Rendering
 
-- [ ] Show task status, agent, repo, branch, and worktree path.
-- [ ] Show latest events.
-- [ ] Show log tail.
-- [ ] Show changed files.
-- [ ] Refresh state on interval or store notifications.
+- [x] Show task status, agent, repo, branch, and worktree path.
+- [x] Show latest events.
+- [x] Show log tail.
+- [x] Show changed files.
+- [x] Refresh state on interval or store notifications.
 
 Acceptance:
 
-- [ ] TUI reflects task changes after restart.
-- [ ] Running sessions are visible.
+- [x] TUI reflects task changes after restart.
+- [x] Running sessions are visible.
 
 ### Slice 7.4: TUI Actions
 
-- [ ] Run command from composer.
-- [ ] Attach selected task.
-- [ ] Stop selected task.
-- [ ] Show diff.
-- [ ] Show logs.
-- [ ] Merge selected task.
-- [ ] Merge and push only after explicit confirmation.
+- [x] Run command from composer.
+- [x] Attach selected task.
+- [x] Stop selected task.
+- [x] Show diff.
+- [x] Show logs.
+- [x] Merge selected task.
+- [x] Merge and push only after explicit confirmation.
 
 Acceptance:
 
-- [ ] A full task can be started and managed from TUI.
-- [ ] Quitting TUI does not stop running tasks.
+- [x] A full task can be started and managed from TUI.
+- [x] Quitting TUI does not stop running tasks.
 
 ### Slice 7.5: Keybindings
 
-- [ ] `enter`: open selected task.
-- [ ] `a`: attach.
-- [ ] `d`: diff.
-- [ ] `l`: logs.
-- [ ] `s`: stop.
-- [ ] `m`: merge.
-- [ ] `?`: help.
-- [ ] `q`: quit.
+- [x] `enter`: open selected task.
+- [x] `a`: attach.
+- [x] `d`: diff.
+- [x] `l`: logs.
+- [x] `s`: stop.
+- [x] `m`: merge.
+- [x] `?`: help.
+- [x] `q`: quit.
 
 Acceptance:
 
-- [ ] Keybindings are visible in help.
-- [ ] Destructive keybindings require confirmation.
+- [x] Keybindings are visible in help.
+- [x] Destructive keybindings require confirmation.
 
 ## Phase 8: Command Parser
 
@@ -850,3 +850,8 @@ Acceptance:
 - 2026-05-22: Completed Phase 6 Slice 6.2 with tracked patch application, untracked file copy, local merge commits, merged task status/events, and preservation of task worktrees/artifacts without pushing.
 - 2026-05-22: Completed Phase 6 Slice 6.3 with explicit `merge --push`, configured remote/source-branch push behavior, push events, and failed-push recovery that preserves the local merge commit.
 - 2026-05-22: Completed Phase 6 review; checks pass and README/help status now reflect local merge, commit, and explicit push support.
+- 2026-05-22: Completed Phase 7 Slice 7.1 with OpenTUI React dependencies, a TUI entrypoint, bare `orchestra` launch, the `orchestra tui` alias, and empty-state rendering.
+- 2026-05-22: Completed Phase 7 Slice 7.2 with responsive task/detail/composer layout, help overlay, status bar, and clear empty/error rendering.
+- 2026-05-22: Completed Phase 7 Slice 7.3 with repo/task metadata, latest events, log tails, changed files, and interval-based state refresh.
+- 2026-05-22: Completed Phase 7 Slice 7.4 with composer-driven CLI actions for run, attach, stop, diff, logs, review, continue, cleanup, merge, and confirmed merge/push.
+- 2026-05-22: Completed Phase 7 Slice 7.5 with keyboard shortcuts for open, attach, diff, logs, stop, merge, help, quit, and confirmations for destructive shortcuts.

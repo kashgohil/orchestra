@@ -39,9 +39,10 @@ orchestra
 > merge task-123 and push
 ```
 
-The TUI is planned to feel closer to OpenCode than a passive dashboard: you give it
+The TUI is meant to feel closer to OpenCode than a passive dashboard: you give it
 commands, it creates and manages agent tasks, and you can attach to the underlying
-tmux session whenever an agent needs interactive attention.
+tmux session whenever an agent needs interactive attention. It currently accepts
+CLI-style slash commands; the natural-language command parser is next.
 
 ## Planned CLI
 
@@ -115,10 +116,11 @@ Completed:
 - Managed tmux session model, runner, attach/stop controls, and reconciliation.
 - CLI workflow commands for init, agents, status, run, logs, diff, attach, stop, cleanup, review, and continue.
 - Merge, local commit, and explicit push workflow.
+- OpenTUI command center with task dashboard, command composer, task details, logs, diffs, keybindings, and destructive-action confirmations.
 
 Next:
 
-- OpenTUI command center.
+- Command parser for natural TUI commands.
 - Doctor, docs, and final v1 hardening.
 
 See [ORCHESTRA_PLAN.md](./ORCHESTRA_PLAN.md) for the full phased implementation plan.
