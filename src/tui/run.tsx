@@ -16,7 +16,15 @@ export async function runTui(options: RunTuiOptions = {}): Promise<void> {
   const renderer = await createCliRenderer({
     exitOnCtrlC: true,
     consoleMode: "disabled",
-    targetFps: 30,
+    externalOutputMode: "passthrough",
+    targetFps: 60,
+    maxFps: 120,
+    gatherStats: false,
+    autoFocus: false,
+    openConsoleOnError: false,
+    useKittyKeyboard: {},
+    useMouse: false,
+    enableMouseMovement: false,
     onDestroy: resolveDone,
   })
 

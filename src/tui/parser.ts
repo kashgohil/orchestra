@@ -14,6 +14,20 @@ export interface TuiCommandConfirmation {
 
 const AGENT_IDS = new Set<string>(BUILT_IN_AGENT_IDS)
 const SIMPLE_TASK_COMMANDS = new Set(["attach", "diff", "logs", "stop"])
+const KNOWN_TUI_COMMANDS = new Set([
+  "init",
+  "agents",
+  "status",
+  "run",
+  "logs",
+  "diff",
+  "attach",
+  "stop",
+  "cleanup",
+  "review",
+  "continue",
+  "merge",
+])
 
 export const TUI_COMMAND_EXAMPLES = [
   "ask codex to fix failing tests",
@@ -50,7 +64,14 @@ export function parseTuiCommand(input: string): ParsedTuiCommand | undefined {
     return parseCliLikeCommand(tokens, slash ? "slash" : "cli")
   }
 
-  return parseNaturalCommand(tokens) ?? parseCliLikeCommand(tokens, "cli")
+  const conversationalTokens = trimConversationalPrefix(tokens)
+
+  return (
+    parseNaturalCommand(tokens) ??
+    (conversationalTokens.length === tokens.length ? undefined : parseNaturalCommand(conversationalTokens)) ??
+    parseKnownCliLikeCommand(tokens) ??
+    parseConversationalRunCommand(conversationalTokens)
+  )
 }
 
 export function getTuiCommandConfirmation(input: string): TuiCommandConfirmation | undefined {
@@ -86,7 +107,8 @@ function parseCliLikeCommand(
   tokens: readonly string[],
   source: ParsedTuiCommand["source"],
 ): ParsedTuiCommand {
-  const [command = "", ...args] = tokens
+  const [rawCommand = "", ...args] = tokens
+  const command = rawCommand.toLowerCase()
   const normalizedArgs =
     command === "run" ? normalizeRunArgs(args) : command === "merge" ? normalizeMergeArgs(args) : args
 
@@ -96,6 +118,41 @@ function parseCliLikeCommand(
     normalized: [command, ...normalizedArgs],
     source,
   }
+}
+
+function parseKnownCliLikeCommand(tokens: readonly string[]): ParsedTuiCommand | undefined {
+  const command = tokens[0]?.toLowerCase()
+
+  return command !== undefined && KNOWN_TUI_COMMANDS.has(command)
+    ? parseCliLikeCommand(tokens, "cli")
+    : undefined
+}
+
+function parseConversationalRunCommand(tokens: readonly string[]): ParsedTuiCommand | undefined {
+  if (tokens.length === 0) {
+    return undefined
+  }
+
+  const [first = "", second = "", third = ""] = tokens
+  const directAgentId = normalizeAgentId(first)
+
+  if (directAgentId !== undefined && tokens.length > 1) {
+    return buildParsed("run", [...tokens.slice(1), "--agent", directAgentId], "natural")
+  }
+
+  if (first.toLowerCase() === "ask") {
+    const askedAgentId = normalizeAgentId(second)
+
+    if (askedAgentId !== undefined) {
+      const prompt = third.toLowerCase() === "to" ? tokens.slice(3) : tokens.slice(2)
+
+      if (prompt.length > 0) {
+        return buildParsed("run", [...prompt, "--agent", askedAgentId], "natural")
+      }
+    }
+  }
+
+  return buildParsed("run", tokens, "natural")
 }
 
 function parseNaturalCommand(tokens: readonly string[]): ParsedTuiCommand | undefined {
@@ -228,6 +285,27 @@ function normalizeAgentId(value: string | undefined): string | undefined {
   const normalized = value?.toLowerCase()
 
   return normalized !== undefined && AGENT_IDS.has(normalized) ? normalized : undefined
+}
+
+function trimConversationalPrefix(tokens: readonly string[]): readonly string[] {
+  let index = 0
+
+  while (tokens[index]?.toLowerCase() === "please") {
+    index += 1
+  }
+
+  const first = tokens[index]?.toLowerCase()
+  const second = tokens[index + 1]?.toLowerCase()
+
+  if ((first === "can" || first === "could" || first === "would" || first === "will") && second === "you") {
+    index += 2
+  }
+
+  while (tokens[index]?.toLowerCase() === "please") {
+    index += 1
+  }
+
+  return tokens.slice(index)
 }
 
 function firstPositional(args: readonly string[]): string | undefined {

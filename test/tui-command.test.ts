@@ -92,10 +92,31 @@ describe("TUI command helpers", () => {
     expect(parseComposerCommand("merge task-123 and push")).toEqual(["merge", "task-123", "--push"])
   })
 
+  test("parses conversational prompts as run tasks", () => {
+    expect(parseComposerCommand("fix failing tests")).toEqual(["run", "fix", "failing", "tests"])
+    expect(parseComposerCommand("codex fix failing tests")).toEqual([
+      "run",
+      "fix",
+      "failing",
+      "tests",
+      "--agent",
+      "codex",
+    ])
+    expect(parseComposerCommand("can you ask claude to inspect the diff")).toEqual([
+      "run",
+      "inspect",
+      "the",
+      "diff",
+      "--agent",
+      "claude",
+    ])
+  })
+
   test("returns parse source metadata for command display", () => {
     expect(parseTuiCommand("ask codex to fix tests")?.source).toBe("natural")
     expect(parseTuiCommand("/run codex fix tests")?.source).toBe("slash")
     expect(parseTuiCommand("orchestra run fix tests --agent codex")?.source).toBe("cli")
+    expect(parseTuiCommand("fix tests")?.source).toBe("natural")
   })
 
   test("formats confirmations from parsed destructive commands", () => {

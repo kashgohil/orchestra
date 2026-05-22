@@ -30,6 +30,7 @@ describe("OpenTUI app", () => {
     const result = await testRender(<OrchestraTuiApp initialState={state} refreshMs={60_000} />, {
       width: 110,
       height: 32,
+      kittyKeyboard: true,
     })
     renderers.push(result.renderer)
 
@@ -78,6 +79,39 @@ describe("OpenTUI app", () => {
 
     expect(frame).toContain("Relationships")
     expect(frame).toContain("children task-review:review:running")
+  })
+
+  test("keeps composer typing in the native OpenTUI input", async () => {
+    const state: TuiState = {
+      repo: {
+        rootPath: "/repo",
+        currentBranch: "main",
+        headCommit: "0123456789abcdef",
+      },
+      tasks: [],
+      loadedAt: "2026-05-22T10:00:00.000Z",
+    }
+    const result = await testRender(<OrchestraTuiApp initialState={state} refreshMs={60_000} />, {
+      width: 110,
+      height: 32,
+      kittyKeyboard: true,
+    })
+    renderers.push(result.renderer)
+
+    await act(async () => {
+      await result.renderOnce()
+      await result.mockInput.typeText("fix tests")
+      await result.renderOnce()
+    })
+
+    expect(result.captureCharFrame()).toContain("> fix tests")
+
+    await act(async () => {
+      result.mockInput.pressEscape()
+      await result.renderOnce()
+    })
+
+    expect(result.captureCharFrame()).not.toContain("> fix tests")
   })
 })
 

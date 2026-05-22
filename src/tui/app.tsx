@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useKeyboard, useRenderer, useTerminalDimensions } from "@opentui/react"
-import type { KeyEvent } from "@opentui/core"
+import type { InputRenderable, KeyEvent } from "@opentui/core"
 
 import type { Task, TaskEvent } from "../core"
 import type { WorktreeChangedFile } from "../git"
@@ -20,22 +20,29 @@ export interface OrchestraTuiAppProps {
 }
 
 const COLORS = {
-  bg: "#0f1214",
-  panel: "#151a1d",
-  panelAlt: "#111619",
-  border: "#394246",
-  text: "#d8dee2",
-  muted: "#8b969c",
-  accent: "#8bd5ca",
-  warn: "#f2c97d",
-  error: "#ff8f8f",
-  success: "#9ad77f",
+  bg: "#02060a",
+  panel: "#06131b",
+  panelAlt: "#030b11",
+  panelHot: "#081f2b",
+  border: "#00a6c8",
+  borderDim: "#0b3442",
+  text: "#d8fbff",
+  muted: "#5d8d99",
+  accent: "#00e5ff",
+  accentBlue: "#2d7dff",
+  warn: "#ffb11b",
+  error: "#ff3d71",
+  success: "#42ffb0",
 }
 
 export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
-  const context = props.context ?? {}
+  const fallbackContext = useMemo<TuiRuntimeContext>(() => ({}), [])
+  const context = props.context ?? fallbackContext
   const renderer = useRenderer()
   const dimensions = useTerminalDimensions()
+  const commandInputRef = useRef<InputRenderable | null>(null)
+  const commandTextRef = useRef("")
+  const commandHasTextRef = useRef(false)
   const [selectedTaskId, setSelectedTaskId] = useState(props.initialState?.selectedTaskId)
   const [state, setState] = useState<TuiState>(
     props.initialState ??
@@ -44,7 +51,7 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
         ...(selectedTaskId === undefined ? {} : { selectedTaskId }),
       }),
   )
-  const [commandText, setCommandText] = useState("")
+  const [commandHasText, setCommandHasText] = useState(false)
   const [viewMode, setViewMode] = useState<TuiViewMode>("overview")
   const [helpVisible, setHelpVisible] = useState(false)
   const [lastResult, setLastResult] = useState<TuiCommandResult>({
@@ -53,6 +60,41 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
   })
   const [pendingCommand, setPendingCommand] = useState<string | undefined>()
   const compact = dimensions.width < 100 || dimensions.height < 30
+  const isComposing = commandHasText || pendingCommand !== undefined
+
+  const syncCommandText = useCallback((value: string) => {
+    commandTextRef.current = value
+
+    const hasText = value.length > 0
+    if (commandHasTextRef.current !== hasText) {
+      commandHasTextRef.current = hasText
+      setCommandHasText(hasText)
+    }
+  }, [])
+
+  const clearCommandInput = useCallback(() => {
+    commandTextRef.current = ""
+
+    if (commandHasTextRef.current) {
+      commandHasTextRef.current = false
+      setCommandHasText(false)
+    }
+
+    if (commandInputRef.current !== null && commandInputRef.current.value.length > 0) {
+      commandInputRef.current.value = ""
+    }
+  }, [])
+
+  const bindCommandInput = useCallback(
+    (input: InputRenderable | null) => {
+      commandInputRef.current = input
+
+      if (input !== null && input.value !== commandTextRef.current) {
+        input.value = commandTextRef.current
+      }
+    },
+    [],
+  )
 
   const refresh = useCallback(
     (nextSelectedTaskId = selectedTaskId) => {
@@ -68,10 +110,14 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
   )
 
   useEffect(() => {
-    const interval = setInterval(() => refresh(), props.refreshMs ?? 2500)
+    if (isComposing) {
+      return
+    }
+
+    const interval = setInterval(() => refresh(), props.refreshMs ?? 4000)
 
     return () => clearInterval(interval)
-  }, [props.refreshMs, refresh])
+  }, [isComposing, props.refreshMs, refresh])
 
   const runCommandText = useCallback(
     async (input: string, confirmed = false) => {
@@ -84,6 +130,7 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
       const confirmation = getTuiCommandConfirmation(command)
 
       if (!confirmed && confirmation !== undefined) {
+        clearCommandInput()
         setPendingCommand(command)
         setLastResult({
           ok: false,
@@ -97,11 +144,12 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
         ok: true,
         message: `Running: ${command}`,
       })
+      clearCommandInput()
 
       const result = await executeTuiCommand(command, context)
 
       setLastResult(result)
-      setCommandText("")
+      clearCommandInput()
 
       if (result.viewMode !== undefined) {
         setViewMode(result.viewMode)
@@ -111,7 +159,7 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
         refresh()
       }
     },
-    [context, refresh],
+    [clearCommandInput, context, refresh],
   )
 
   const runShortcut = useCallback(
@@ -142,7 +190,33 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
     [runCommandText, state.selectedTaskId],
   )
 
+  const submitComposerValue = useCallback(
+    (value: unknown) => {
+      const command = typeof value === "string" ? value : commandInputRef.current?.value ?? commandTextRef.current
+
+      if (command.trim().length > 0) {
+        void runCommandText(command)
+        return
+      }
+
+      runShortcut("open")
+    },
+    [runCommandText, runShortcut],
+  )
+
+  const handleComposerKeyDown = useCallback(
+    (key: KeyEvent) => {
+      if (key.name === "escape" && (commandInputRef.current?.value ?? commandTextRef.current).length > 0) {
+        clearCommandInput()
+      }
+    },
+    [clearCommandInput],
+  )
+
   useKeyboard((key) => {
+    const currentInput = commandInputRef.current?.value ?? commandTextRef.current
+    const inputHasText = currentInput.length > 0
+
     if (pendingCommand !== undefined) {
       handleConfirmationKey({
         key,
@@ -160,29 +234,19 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
     }
 
     if (key.name === "escape") {
-      if (commandText.length > 0) {
-        setCommandText("")
+      if (inputHasText) {
+        clearCommandInput()
       } else if (helpVisible) {
         setHelpVisible(false)
       }
       return
     }
 
-    if (key.name === "return") {
-      if (commandText.trim().length > 0) {
-        void runCommandText(commandText)
-      } else {
-        runShortcut("open")
-      }
-      return
-    }
-
-    if (key.name === "backspace") {
-      setCommandText((value) => value.slice(0, -1))
-      return
-    }
-
     if (key.name === "up" || key.name === "down") {
+      if (inputHasText) {
+        return
+      }
+
       const nextSelectedTaskId = selectAdjacentTaskId(
         state.tasks,
         state.selectedTaskId,
@@ -196,34 +260,15 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
       return
     }
 
-    if (commandText.length === 0) {
-      if (key.name === "q") {
-        renderer.destroy()
-        return
-      }
-
+    if (!inputHasText) {
       if (key.name === "?") {
         setHelpVisible((visible) => !visible)
-        return
       }
-
-      const shortcut = shortcutForKey(key.name)
-
-      if (shortcut !== undefined) {
-        runShortcut(shortcut)
-        return
-      }
-    }
-
-    const printable = printableKey(key)
-
-    if (printable !== undefined) {
-      setCommandText((value) => `${value}${printable}`)
     }
   })
 
   const latestMessage = useMemo(
-    () => truncateMiddle(lastResult.message.replace(/\s+/g, " "), dimensions.width - 22),
+    () => truncateMiddle(lastResult.message.replace(/\s+/g, " "), Math.max(24, dimensions.width - 22)),
     [dimensions.width, lastResult.message],
   )
 
@@ -240,9 +285,12 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
       </box>
       {helpVisible ? <HelpOverlay /> : null}
       <CommandComposer
-        commandText={commandText}
+        inputRef={bindCommandInput}
         latestMessage={latestMessage}
         ok={lastResult.ok}
+        onInput={syncCommandText}
+        onKeyDown={handleComposerKeyDown}
+        onSubmit={submitComposerValue}
         {...(pendingCommand === undefined ? {} : { pendingCommand })}
       />
       <StatusBar
@@ -254,7 +302,7 @@ export function OrchestraTuiApp(props: OrchestraTuiAppProps) {
   )
 }
 
-function Header(props: { readonly state: TuiState }) {
+const Header = memo(function Header(props: { readonly state: TuiState }) {
   const repo = props.state.repo
   const subtitle =
     repo === undefined
@@ -262,14 +310,14 @@ function Header(props: { readonly state: TuiState }) {
       : `${repo.rootPath}  ${repo.currentBranch}  ${repo.headCommit.slice(0, 8)}`
 
   return (
-    <box height={3} paddingX={1} flexDirection="column" backgroundColor={COLORS.panel}>
-      <text fg={COLORS.accent}>Orchestra</text>
+    <box height={3} paddingX={1} flexDirection="column" backgroundColor={COLORS.bg}>
+      <text fg={COLORS.accent}>Orchestra // Command Grid</text>
       <text fg={COLORS.muted}>{truncateMiddle(subtitle, 140)}</text>
     </box>
   )
-}
+})
 
-function TaskList(props: {
+const TaskList = memo(function TaskList(props: {
   readonly tasks: readonly Task[]
   readonly selectedTaskId?: string
   readonly compact: boolean
@@ -286,21 +334,21 @@ function TaskList(props: {
       flexDirection="column"
       backgroundColor={COLORS.panelAlt}
     >
-      <text fg={COLORS.muted}>Tasks</text>
+      <text fg={COLORS.accentBlue}>Tasks</text>
       {visibleTasks.length === 0 ? (
         <text fg={COLORS.muted}>No tasks yet. Type ask codex to fix tests</text>
       ) : (
         visibleTasks.map((task) => (
-          <text key={task.id} fg={task.id === props.selectedTaskId ? COLORS.accent : COLORS.text}>
+          <text key={task.id} fg={task.id === props.selectedTaskId ? COLORS.warn : COLORS.text}>
             {formatTaskRow(task, task.id === props.selectedTaskId)}
           </text>
         ))
       )}
     </box>
   )
-}
+})
 
-function TaskDetailPanel(props: {
+const TaskDetailPanel = memo(function TaskDetailPanel(props: {
   readonly state: TuiState
   readonly viewMode: TuiViewMode
   readonly compact: boolean
@@ -331,20 +379,20 @@ function TaskDetailPanel(props: {
       )}
     </box>
   )
-}
+})
 
-function EmptyDashboard() {
+const EmptyDashboard = memo(function EmptyDashboard() {
   return (
     <box flexDirection="column" gap={1}>
       <text fg={COLORS.accent}>No tasks in this repo.</text>
       <text fg={COLORS.text}>ask codex to fix failing tests</text>
-      <text fg={COLORS.text}>/run codex fix failing tests</text>
+      <text fg={COLORS.accentBlue}>/run codex fix failing tests</text>
       <text fg={COLORS.text}>/agents</text>
     </box>
   )
-}
+})
 
-function TaskDetail(props: {
+const TaskDetail = memo(function TaskDetail(props: {
   readonly detail: NonNullable<TuiState["detail"]>
   readonly tasks: readonly Task[]
   readonly viewMode: TuiViewMode
@@ -371,7 +419,7 @@ function TaskDetail(props: {
       )}
     </box>
   )
-}
+})
 
 function TaskRelationships(props: { readonly task: Task; readonly tasks: readonly Task[] }) {
   const children = props.tasks.filter((task) => task.parentTaskId === props.task.id)
@@ -468,7 +516,7 @@ function DiffSummary(props: { readonly files: readonly WorktreeChangedFile[] }) 
   )
 }
 
-function HelpOverlay() {
+const HelpOverlay = memo(function HelpOverlay() {
   return (
     <box
       position="absolute"
@@ -480,11 +528,11 @@ function HelpOverlay() {
       borderColor={COLORS.accent}
       padding={1}
       flexDirection="column"
-      backgroundColor="#10171a"
+      backgroundColor={COLORS.panelHot}
     >
       <text fg={COLORS.accent}>Keys</text>
-      <text fg={COLORS.text}>enter open selected  up/down select  a attach  d diff  l logs</text>
-      <text fg={COLORS.text}>s stop  m merge  ? help  q quit  esc clear/close</text>
+      <text fg={COLORS.text}>enter submit/open selected  up/down select  esc clear/close</text>
+      <text fg={COLORS.text}>? help  ctrl-c quit</text>
       <text fg={COLORS.accent}>Commands</text>
       <text fg={COLORS.text}>ask codex to fix tests   /run codex fix tests</text>
       <text fg={COLORS.text}>review task-id with claude   /review task-id --agent claude</text>
@@ -492,29 +540,57 @@ function HelpOverlay() {
       <text fg={COLORS.text}>diff task-id  logs task-id  merge task-id and push</text>
     </box>
   )
-}
+})
 
-function CommandComposer(props: {
-  readonly commandText: string
+const CommandComposer = memo(function CommandComposer(props: {
+  readonly inputRef: (input: InputRenderable | null) => void
   readonly pendingCommand?: string
   readonly latestMessage: string
   readonly ok: boolean
+  readonly onInput: (value: string) => void
+  readonly onKeyDown: (key: KeyEvent) => void
+  readonly onSubmit: (value: unknown) => void
 }) {
-  const command =
-    props.pendingCommand ?? (props.commandText.length === 0 ? "ask codex to fix failing tests" : props.commandText)
-  const prompt = props.pendingCommand === undefined ? "> " : "confirm y/n > "
+  const confirming = props.pendingCommand !== undefined
 
   return (
-    <box height={4} borderStyle="single" borderColor={COLORS.border} paddingX={1} flexDirection="column">
-      <text fg={props.pendingCommand === undefined ? COLORS.accent : COLORS.warn}>
-        {`${prompt}${command}`}
-      </text>
+    <box
+      height={4}
+      borderStyle="double"
+      borderColor={props.pendingCommand === undefined ? COLORS.accent : COLORS.warn}
+      paddingX={1}
+      flexDirection="column"
+      backgroundColor={COLORS.panelAlt}
+    >
+      {confirming ? (
+        <text fg={COLORS.warn}>{`confirm y/n > ${props.pendingCommand}`}</text>
+      ) : (
+        <box flexDirection="row" width="100%">
+          <text fg={COLORS.accent}>{"> "}</text>
+          <input
+            ref={props.inputRef}
+            focused
+            flexGrow={1}
+            maxLength={4000}
+            placeholder="ask codex to fix failing tests"
+            backgroundColor={COLORS.panelAlt}
+            focusedBackgroundColor={COLORS.panelAlt}
+            textColor={COLORS.text}
+            focusedTextColor={COLORS.text}
+            placeholderColor={COLORS.muted}
+            cursorColor={COLORS.accent}
+            onInput={props.onInput}
+            onKeyDown={props.onKeyDown}
+            onSubmit={props.onSubmit}
+          />
+        </box>
+      )}
       <text fg={props.ok ? COLORS.muted : COLORS.error}>{props.latestMessage}</text>
     </box>
   )
-}
+})
 
-function StatusBar(props: {
+const StatusBar = memo(function StatusBar(props: {
   readonly state: TuiState
   readonly viewMode: TuiViewMode
   readonly dimensions: string
@@ -523,12 +599,12 @@ function StatusBar(props: {
   const activeCount = props.state.tasks.filter((task) => task.status === "running" || task.status === "starting").length
 
   return (
-    <box height={1} paddingX={1} backgroundColor="#0a0d0f" flexDirection="row" justifyContent="space-between">
-      <text fg={COLORS.muted}>{`${taskCount} tasks  ${activeCount} active  ${props.viewMode}`}</text>
-      <text fg={COLORS.muted}>{`${props.dimensions}  ? help`}</text>
+    <box height={1} paddingX={1} backgroundColor="#010306" flexDirection="row" justifyContent="space-between">
+      <text fg={COLORS.accentBlue}>{`${taskCount} tasks  ${activeCount} active  ${props.viewMode}`}</text>
+      <text fg={COLORS.muted}>{`${props.dimensions}  grid help ?`}</text>
     </box>
   )
-}
+})
 
 type TuiTaskDetailForRender = NonNullable<TuiState["detail"]>
 
@@ -551,39 +627,6 @@ function handleConfirmationKey(input: {
       message: "Cancelled.",
     })
   }
-}
-
-function shortcutForKey(name: string): TuiShortcutAction | undefined {
-  switch (name) {
-    case "a":
-      return "attach"
-    case "d":
-      return "diff"
-    case "l":
-      return "logs"
-    case "s":
-      return "stop"
-    case "m":
-      return "merge"
-    default:
-      return undefined
-  }
-}
-
-function printableKey(key: KeyEvent): string | undefined {
-  if (key.ctrl || key.meta || key.name === "return" || key.name === "escape") {
-    return undefined
-  }
-
-  if (key.name === "space") {
-    return " "
-  }
-
-  if (key.sequence.length === 1 && key.sequence >= " " && key.sequence !== "\x7f") {
-    return key.sequence
-  }
-
-  return undefined
 }
 
 function formatTaskRow(task: Task, selected: boolean): string {
