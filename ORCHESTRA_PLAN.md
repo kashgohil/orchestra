@@ -751,43 +751,43 @@ Goal: make v1 usable without hidden behavior.
 
 ### Slice 10.1: Doctor
 
-- [ ] Add `orchestra doctor`.
-- [ ] Check Bun.
-- [ ] Check tmux.
-- [ ] Check git.
-- [ ] Check configured agent binaries.
-- [ ] Check repo state.
-- [ ] Check global/per-repo DB access.
+- [x] Add `orchestra doctor`.
+- [x] Check Bun.
+- [x] Check tmux.
+- [x] Check git.
+- [x] Check configured agent binaries.
+- [x] Check repo state.
+- [x] Check global/per-repo DB access.
 
 Acceptance:
 
-- [ ] Common setup problems are reported with fixes.
+- [x] Common setup problems are reported with fixes.
 
 ### Slice 10.2: README and Quickstart
 
-- [ ] Add README.
-- [ ] Add install instructions.
-- [ ] Add quickstart.
-- [ ] Add TUI command examples.
-- [ ] Add CLI command examples.
-- [ ] Add supported agent setup notes.
+- [x] Add README.
+- [x] Add install instructions.
+- [x] Add quickstart.
+- [x] Add TUI command examples.
+- [x] Add CLI command examples.
+- [x] Add supported agent setup notes.
 
 Acceptance:
 
-- [ ] A new user can run a basic task from docs.
+- [x] A new user can run a basic task from docs.
 
 ### Slice 10.3: Troubleshooting
 
-- [ ] Document missing tmux.
-- [ ] Document missing agent binary.
-- [ ] Document failed worktree creation.
-- [ ] Document stuck sessions.
-- [ ] Document dirty repo merge failure.
-- [ ] Document failed push recovery.
+- [x] Document missing tmux.
+- [x] Document missing agent binary.
+- [x] Document failed worktree creation.
+- [x] Document stuck sessions.
+- [x] Document dirty repo merge failure.
+- [x] Document failed push recovery.
 
 Acceptance:
 
-- [ ] Known failure modes have documented recovery paths.
+- [x] Known failure modes have documented recovery paths.
 
 ### Slice 10.4: Final v1 Pass
 
@@ -864,3 +864,6 @@ Acceptance:
 - 2026-05-22: Completed Phase 9 Slice 9.2 with continue prompt context for original prompt, current diff, discovered review notes, user continuation instructions, and existing-worktree execution.
 - 2026-05-22: Completed Phase 9 Slice 9.3 with parent/child links surfaced in CLI status and TUI task detail relationships.
 - 2026-05-22: Completed Phase 9 review; checks pass, review/continue context is covered by workflow tests, and no stale populated-directory placeholders were introduced.
+- 2026-05-22: Completed Phase 10 Slice 10.1 with `orchestra doctor` checks for Bun, Git, tmux, configured agents, repo state, global DB access, and per-repo DB access.
+- 2026-05-22: Completed Phase 10 Slice 10.2 with README install instructions, quickstart, TUI command examples, CLI command examples, and supported agent setup notes.
+- 2026-05-22: Completed Phase 10 Slice 10.3 with troubleshooting for missing tmux, missing agents, worktree creation failures, stuck sessions, dirty repo merge failures, and failed push recovery.
