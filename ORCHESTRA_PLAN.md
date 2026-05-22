@@ -713,37 +713,37 @@ Goal: support multi-agent workflows without agents talking directly.
 
 ### Slice 9.1: Review Context Builder
 
-- [ ] Include original task prompt.
-- [ ] Include current diff.
-- [ ] Include recent logs.
-- [ ] Include test/lint output when available.
-- [ ] Tell review agent to write `REVIEW.md`.
+- [x] Include original task prompt.
+- [x] Include current diff.
+- [x] Include recent logs.
+- [x] Include test/lint output when available.
+- [x] Tell review agent to write `REVIEW.md`.
 
 Acceptance:
 
-- [ ] Review task has enough context to be useful.
+- [x] Review task has enough context to be useful.
 
 ### Slice 9.2: Continue Context Builder
 
-- [ ] Include original task prompt.
-- [ ] Include current diff.
-- [ ] Include review notes if present.
-- [ ] Include user continuation instruction.
-- [ ] Run in existing task worktree.
+- [x] Include original task prompt.
+- [x] Include current diff.
+- [x] Include review notes if present.
+- [x] Include user continuation instruction.
+- [x] Run in existing task worktree.
 
 Acceptance:
 
-- [ ] Continue task can address review comments in place.
+- [x] Continue task can address review comments in place.
 
 ### Slice 9.3: Parent/Child Display
 
-- [ ] Link review tasks to parent task.
-- [ ] Show relationships in CLI status.
-- [ ] Show relationships in TUI detail view.
+- [x] Link review tasks to parent task.
+- [x] Show relationships in CLI status.
+- [x] Show relationships in TUI detail view.
 
 Acceptance:
 
-- [ ] User can understand which review belongs to which implementation task.
+- [x] User can understand which review belongs to which implementation task.
 
 ## Phase 10: Hardening and Documentation
 
@@ -860,3 +860,6 @@ Acceptance:
 - 2026-05-22: Completed Phase 8 Slice 8.2 with documented natural commands for run, review, continue, diff, logs, attach, stop, merge, and merge-and-push.
 - 2026-05-22: Completed Phase 8 Slice 8.3 with parsed-action confirmation messages for stop, merge, and merge-and-push before execution.
 - 2026-05-22: Completed Phase 8 review; checks pass, README/help status reflect natural commands, and unknown TUI commands now show examples instead of guessing.
+- 2026-05-22: Completed Phase 9 Slice 9.1 with review prompt context for original prompt, current diff, recent logs, detected test/lint output, and explicit `REVIEW.md` instructions.
+- 2026-05-22: Completed Phase 9 Slice 9.2 with continue prompt context for original prompt, current diff, discovered review notes, user continuation instructions, and existing-worktree execution.
+- 2026-05-22: Completed Phase 9 Slice 9.3 with parent/child links surfaced in CLI status and TUI task detail relationships.

@@ -118,10 +118,10 @@ Completed:
 - Merge, local commit, and explicit push workflow.
 - OpenTUI command center with task dashboard, command composer, task details, logs, diffs, keybindings, and destructive-action confirmations.
 - Natural and slash TUI command parsing for run, review, continue, diff, logs, attach, stop, merge, and explicit push.
+- Review and continue prompt context with parent task details, current diffs, recent logs, test/lint output, review notes, and visible parent/child task relationships.
 
 Next:
 
-- Review/continue context hardening.
 - Doctor, docs, and final v1 hardening.
 
 See [ORCHESTRA_PLAN.md](./ORCHESTRA_PLAN.md) for the full phased implementation plan.
