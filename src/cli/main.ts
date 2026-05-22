@@ -4,6 +4,7 @@ import { formatHelp, formatUnknownCommand } from "./help"
 import { runAgentsCommand } from "./agents"
 import { parseArgs, hasFlag } from "./args"
 import { formatCliError } from "./errors"
+import { runDoctorCommand } from "./doctor"
 import { runInitCommand } from "./init"
 import { runStatusCommand } from "./status"
 import {
@@ -147,6 +148,16 @@ export async function runCli(argv: string[], options: CliOptions = {}): Promise<
     if (command === "cleanup") {
       stdout(runCleanupCommand(args, runtimeContext))
       return 0
+    }
+
+    if (command === "doctor") {
+      const result = await runDoctorCommand({
+        ...runtimeContext,
+        ...(options.commandResolver === undefined ? {} : { commandResolver: options.commandResolver }),
+      })
+
+      stdout(result.output)
+      return result.exitCode
     }
 
     if (command === "review") {
